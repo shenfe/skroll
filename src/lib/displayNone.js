@@ -122,7 +122,7 @@ define(function () {
         _subBlank.style.height = _cache.subHeight + 'px';
     };
 
-    var _getBegin = function(pos, len) {
+    var _getBeginOfScrollEnd = function(pos, len) {
         var begin = 1, i;
         if (_cache.dir == 0) { // 向下移动
             for (i = _cache.begin; i >= 1; i--) {
@@ -143,7 +143,7 @@ define(function () {
         return begin;
     };
 
-    var update = function (pos) {
+    var updateOnTouchEnd = function (pos) {
         var children = _list.childNodes;
         var len = children.length;
         var begin = 1;
@@ -158,9 +158,13 @@ define(function () {
         }
         _cache.pos = pos;
 
-        begin = _getBegin(pos, len);
+        begin = _getBeginOfScrollEnd(pos, len);
 
-        // TOFIX: 开始迅速向下滚动后，需要隐藏的元素不应立即隐藏
+        if(_cache.dir == 0)
+            expand();
+        else
+            expand();
+        return;
 
         // toggle一些元素 {
         var tempBegin, tempEnd, displayTo = _cache.begin - _conf.liveRangeOffset;
@@ -223,6 +227,17 @@ define(function () {
         _cache.begin = begin;
     };
 
+    var expand = function(begin, upper, lower, ifCheck) {};
+
+    var updateOnTouchStart = function(pos) {
+        var children = _list.childNodes;
+        var len = children.length;
+        if (pos < 0) pos = -pos;
+        var begin = _getBeginOfTouchStart(pos, len);
+
+        expand(begin, begin - _conf.liveRangeOffset, begin + _conf.liveRange - 1, true);
+    };
+
     // index starts from 1
     var updateHeightOf = function (index, newHeight) {
         if(!newHeight) var newHeight = _list.childNodes[index].offsetHeight;
@@ -235,8 +250,11 @@ define(function () {
 
     return {
         onScrollInit: init,
+        onScrollStart: function(el, data) {
+            updateOnTouchStart(-data.position);
+        },
         onScrollEnd: function(el, data) {
-            update(-data.endPosition);
+            updateOnTouchEnd(-data.endPosition);
         },
         reflow: updateHeightOf
     }

@@ -1,6 +1,7 @@
 /**
- * 假设：
- * 从开始滚动到结束滚动，page的高度、父元素的高度都不发生变化；
+ * Advice:
+ * Don't change the size of container elements easily.
+ * If something needs to be inputted, open a dialog.
  */
 define(function() {
     var page,
@@ -61,7 +62,7 @@ define(function() {
         };
     var ScrollHelp = {
         updateHeights: function() {
-            heightOf.parent = heightOf.foo = page.parentNode.clientHeight;
+            heightOf.parent = heightOf.foo = page.parentNode.clientHeight; // clientHeight / offsetHeight / getBoundingClientRect ?
             heightOf.page = page.clientHeight;
             heightOf.bar = heightOf.foo * heightOf.parent / heightOf.page;
         },
@@ -281,16 +282,10 @@ define(function() {
                 this.onInit[i](el, data);
             }
         },
-        onStart: [],
+        onStart: [], // start a scroll, and actually pause a scroll at the same time
         start: function(el, data) {
             for(var i = 0, len = this.onStart.length; i < len; i++) {
                 this.onStart[i](el, data);
-            }
-        },
-        onPause: [],
-        pause: function(el, data) {
-            for(var i = 0, len = this.onPause.length; i < len; i++) {
-                this.onPause[i](el, data);
             }
         },
         onMove: [],
@@ -305,6 +300,11 @@ define(function() {
                 this.onEnd[i](el, data);
             }
         }
+    };
+
+    var onResize = function() {
+        ScrollHelp.updateHeights();
+        if(scrollBarConf.mode != 0) ScrollHelp.getScrollBar();
     };
 
     var control = function(dom, conf) {
@@ -344,6 +344,11 @@ define(function() {
             distXIntervals = [],
             distYIntervals = [],
             timeIntervals = [];
+
+            eventQueues.start(this, {
+                position: startTop
+            });
+            console.log('touchstart at: ' + startTop);
 
             // e.preventDefault();
         }, false);
@@ -394,6 +399,8 @@ define(function() {
 
             var endTime = Date.now();
             var curPosition = scrollPosition;
+            console.log('touchend at: ' + curPosition);
+            console.log('scrollstart at: ' + curPosition);
             var transBoundary = ScrollHelp.getMaxTranslate('page', this);
             if (endTime - lastMoveTime < thresholdTime) {
                 var initialSpeed = 1000 * ScrollHelp.calSpeed(distYIntervals, timeIntervals, totalDistY, elapsedTime);
@@ -429,6 +436,7 @@ define(function() {
                 startPosition: startTop,
                 transBoundary: transBoundary
             });
+            console.log('scrollend at: ' + curPosition);
 
             // e.preventDefault();
         }, false);
