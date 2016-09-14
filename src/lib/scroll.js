@@ -33,6 +33,7 @@ define(function() {
         distYIntervals = [],
         timeIntervals = [],
         scrollBarConf = {
+            draggable: false,
             minHeight: '10px',
             hideDelay: 1000,
             mode: 0 // 0: hidden, 1: autoShow, 2: alwaysShow
@@ -84,6 +85,8 @@ define(function() {
                 b.style.height = heightOf.parent / heightOf.page * 100 + '%';
 
                 b.addEventListener('touchstart', function(e) {
+                    if(!scrollBarConf.draggable) return;
+
                     var touchobj = e.changedTouches[0];
                     scrollBarData.thenX = scrollBarData.nowX = scrollBarData.startX = touchobj.pageX;
                     scrollBarData.thenY = scrollBarData.nowY = scrollBarData.startY = touchobj.pageY;
@@ -104,6 +107,8 @@ define(function() {
                     e.preventDefault();
                 }, false);
                 b.addEventListener('touchmove', function(e) {
+                    if(!scrollBarConf.draggable) return;
+
                     if(heightOf.bar >= heightOf.foo) {
                         return;
                     }
@@ -127,6 +132,8 @@ define(function() {
                     e.preventDefault(); // prevent scrolling when inside DIV
                 }, false);
                 b.addEventListener('touchend', function(e) {
+                    if(!scrollBarConf.draggable) return;
+                    
                     if(scrollBarConf.mode == 1) {
                         scrollBarData.hideTimeout = window.setTimeout(function() {
                             this.parentNode.style.display = 'none';

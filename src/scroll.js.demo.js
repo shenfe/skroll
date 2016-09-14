@@ -50,6 +50,7 @@ requirejs(['scroll', 'hide', 'domini', 'domock'], function(Scroll, Hide, Domini,
         document.title += '-raf';
     }
 
+    // test_generateContent1(test_targetDom, [100]);
     test_generateContent2(test_targetDom, [test_listLength, 4, 4, 4]);
 
     if(test_native) return;

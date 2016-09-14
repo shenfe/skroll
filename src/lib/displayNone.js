@@ -31,7 +31,7 @@ define(function () {
             dir: 0, // 0: down, 1: up
             hIndex: [], // height
             pIndex: [], // position
-            // vIndex: [], // visible
+            vIndex: [], // visible
             dIndex: [], // display
             preHeight: 0,
             subHeight: 0,
@@ -86,7 +86,7 @@ define(function () {
                 minH = curH;
             }
             h += curH;
-            // _cache.vIndex[i] = true;
+            _cache.vIndex[i] = true;
             if (_conf.displayNeeded) _cache.dIndex[i] = _getStyle(children[i], 'display');
         }
         _cache.minHeight = minH;
@@ -110,13 +110,13 @@ define(function () {
             len = children.length;
         for(var i = tempBegin - 1; i >= 1; i--) {
             children[i].style.display = 'none';
-            // _cache.vIndex[i] = false;
+            _cache.vIndex[i] = false;
         }
         _preBlank.style.height = _cache.pIndex[tempBegin < 1 ? 1 : tempBegin] + 'px';
 
         for(var i = tempEnd; i < len - 1; i++) {
             children[i].style.display = 'none';
-            // _cache.vIndex[i] = false;
+            _cache.vIndex[i] = false;
             _cache.subHeight += _cache.hIndex[i];
         }
         _subBlank.style.height = _cache.subHeight + 'px';
@@ -143,6 +143,27 @@ define(function () {
         return begin;
     };
 
+    var _getBeginOfTouchStart = function(pos, len) {
+        var begin = _cache.begin, i;
+        if (_cache.dir == 0) { // 向下移动
+            for (i = _cache.begin; i < len - 1; i++) {
+                if (_cache.pIndex[i] <= pos) { // 第i个元素刚好没过pos
+                    begin = i;
+                } else break;
+            }
+        } else { // 向上移动
+            for (i = _cache.begin; i >= 1; i--) {
+                if (_cache.pIndex[i] > pos) { // 第i个元素刚好超过pos
+                    continue;
+                } else {
+                    begin = i;
+                    break;
+                }
+            }
+        }
+        return begin;
+    };
+
     var updateOnTouchEnd = function (pos) {
         var children = _list.childNodes;
         var len = children.length;
@@ -160,74 +181,30 @@ define(function () {
 
         begin = _getBeginOfScrollEnd(pos, len);
 
-        if(_cache.dir == 0)
-            expand();
-        else
-            expand();
-        return;
+        if(_cache.dir == 0) {
 
-        // toggle一些元素 {
-        var tempBegin, tempEnd, displayTo = _cache.begin - _conf.liveRangeOffset;
-        if(displayTo < 1) displayTo = 1;
-        if (_cache.dir == 0) { // 向下移动
-            tempBegin = _cache.begin - _conf.liveRangeOffset - 1;
-            tempEnd = begin - _conf.liveRangeOffset;
-            if(tempBegin > len - 2) tempBegin = len - 2;
-            if(tempEnd < 1) tempEnd = 1;
-            for (i = tempBegin; i >= tempEnd; i--) {
-                children[i].style.display = _conf.displayNeeded ? _cache.dIndex[i] : 'block';
-                // _cache.vIndex[i] = true;
-            }
-            displayTo = tempEnd;
+            // console.log({
+            //     touch: 'end',
+            //     dir: _cache.dir,
+            //     from: _cache.begin,
+            //     upTo: begin
+            // });
 
-            tempBegin = begin + _conf.liveRange;
-            tempEnd = _cache.begin + _conf.liveRange;
-            if(tempBegin < 1) tempBegin = 1;
-            if(tempEnd > len - 1) tempEnd = len - 1;
-            for (j = tempBegin; j < tempEnd; j++) {
-                children[j].style.display = 'none';
-                // _cache.vIndex[j] = false;
-                _cache.subHeight += _cache.hIndex[j];
-            }
-        } else { // 向上移动
-            tempBegin = _cache.begin + _conf.liveRange;
-            tempEnd = begin + _conf.liveRange;
-            if(tempBegin < 1) tempBegin = 1;
-            if(tempEnd > len - 1) tempEnd = len - 1;
-            for (j = tempBegin; j < tempEnd; j++) {
-                children[j].style.display = _conf.displayNeeded ? _cache.dIndex[j] : 'block';
-                // _cache.vIndex[j] = true;
-                _cache.subHeight -= _cache.hIndex[j];
-            }
+            rdisplay(_cache.begin, Math.min(begin, _cache.begin - _conf.liveRangeOffset), len, children, true);
+        } else {
 
-            tempBegin = _cache.begin - _conf.liveRangeOffset;
-            tempEnd = begin - _conf.liveRangeOffset;
-            if(tempBegin < 1) tempBegin = 1;
-            if(tempEnd > len - 1) tempEnd = len - 1;
-            for (i = tempBegin; i < tempEnd; i++) {
-                children[i].style.display = 'none';
-                // _cache.vIndex[i] = false;
-            }
-            displayTo = tempEnd;
+            // console.log({
+            //     touch: 'end',
+            //     dir: _cache.dir,
+            //     from: _cache.begin,
+            //     downTo: begin
+            // });
+
+            display(_cache.begin, Math.max(begin, _cache.begin + _conf.liveRange - 1), len, children, true);
         }
-        if(displayTo < 1) displayTo = 1;
-        if(displayTo > len - 2) displayTo = len - 2;
-        _preBlank.style.height = _cache.pIndex[displayTo] + 'px';
-        _subBlank.style.height = _cache.subHeight + 'px';
-        // }
-
-        // tempBegin = begin - _conf.liveRangeOffset;
-        // if(tempBegin < 1) tempBegin = 1;
-        // tempEnd = begin + _conf.liveRange;
-        // if(tempEnd > len - 1) tempEnd = len - 1;
-        // for(var i = tempBegin; i < tempEnd; i++) {
-        //     children[i].style.display = _conf.displayNeeded ? _cache.dIndex[i] : 'block';
-        // }
-
         _cache.begin = begin;
+        return;
     };
-
-    var expand = function(begin, upper, lower, ifCheck) {};
 
     var updateOnTouchStart = function(pos) {
         var children = _list.childNodes;
@@ -235,7 +212,57 @@ define(function () {
         if (pos < 0) pos = -pos;
         var begin = _getBeginOfTouchStart(pos, len);
 
-        expand(begin, begin - _conf.liveRangeOffset, begin + _conf.liveRange - 1, true);
+        // console.log({
+        //     touch: 'start',
+        //     begin: begin,
+        //     upTo: begin - _conf.liveRangeOffset,
+        //     downTo: begin + _conf.liveRange - 1
+        // });
+
+        display(begin, begin + _conf.liveRange - 1, len, children, true);
+        rdisplay(begin, begin - _conf.liveRangeOffset, len, children, true);
+    };
+
+    var display = function(begin, end, len, children, ifCheck) { // go down
+        if(begin < 1) begin = 1;
+        if(end > len - 2) end = len - 2;
+        for (var j = begin; j <= end; j++) {
+            if(_cache.vIndex[j]) continue;
+            children[j].style.display = _conf.displayNeeded ? _cache.dIndex[j] : 'block';
+            _cache.vIndex[j] = true;
+            _cache.subHeight -= _cache.hIndex[j];
+        }
+
+        if(ifCheck) {
+            for (var j = end + 1; j < len - 1; j++) {
+                if(!_cache.vIndex[j]) break;
+                children[j].style.display = 'none';
+                _cache.vIndex[j] = false;
+                _cache.subHeight += _cache.hIndex[j];
+            }
+        }
+
+        _subBlank.style.height = _cache.subHeight + 'px';
+    };
+
+    var rdisplay = function(begin, end, len, children, ifCheck) { // go up
+        if(end < 1) end = 1;
+        if(begin > len - 2) begin = len - 2;
+        for (var j = begin; j >= end; j--) {
+            if(_cache.vIndex[j]) continue;
+            children[j].style.display = _conf.displayNeeded ? _cache.dIndex[j] : 'block';
+            _cache.vIndex[j] = true;
+        }
+
+        if(ifCheck) {
+            for (var j = end - 1; j >= 1; j--) {
+                if(!_cache.vIndex[j]) break;
+                children[j].style.display = 'none';
+                _cache.vIndex[j] = false;
+            }
+        }
+
+        _preBlank.style.height = _cache.pIndex[end] + 'px';
     };
 
     // index starts from 1
