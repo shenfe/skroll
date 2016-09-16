@@ -22,7 +22,8 @@ requirejs(['scroll', 'hide', 'domini', 'domock'], function(Scroll, Hide, Domini,
     var test_targetDom = document.getElementById('div1');
     var test_native = getUrlParameter('native'),
         test_choice = getUrlParameter('hide'),
-        test_requestAnimationFrame = getUrlParameter('raf');
+        test_requestAnimationFrame = getUrlParameter('raf'),
+        test_content = getUrlParameter('content');
     var test_generateContent1 = function(div, levels) {
         for (var i = 0; i < levels[0]; i++) {
             var child = document.createElement('div');
@@ -50,8 +51,10 @@ requirejs(['scroll', 'hide', 'domini', 'domock'], function(Scroll, Hide, Domini,
         document.title += '-raf';
     }
 
-    // test_generateContent1(test_targetDom, [100]);
-    test_generateContent2(test_targetDom, [test_listLength, 4, 4, 4]);
+    if(test_content == 1)
+        test_generateContent1(test_targetDom, [test_listLength]);
+    else
+        test_generateContent2(test_targetDom, [test_listLength, 1, 1, 1]);
 
     if(test_native) return;
 

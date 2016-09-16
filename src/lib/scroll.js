@@ -133,7 +133,7 @@ define(function() {
                 }, false);
                 b.addEventListener('touchend', function(e) {
                     if(!scrollBarConf.draggable) return;
-                    
+
                     if(scrollBarConf.mode == 1) {
                         scrollBarData.hideTimeout = window.setTimeout(function() {
                             this.parentNode.style.display = 'none';
@@ -355,7 +355,7 @@ define(function() {
             eventQueues.start(this, {
                 position: startTop
             });
-            console.log('touchstart at: ' + startTop);
+            // console.log('touchstart at: ' + startTop);
 
             // e.preventDefault();
         }, false);
@@ -406,8 +406,8 @@ define(function() {
 
             var endTime = Date.now();
             var curPosition = scrollPosition;
-            console.log('touchend at: ' + curPosition);
-            console.log('scrollstart at: ' + curPosition);
+            // console.log('touchend at: ' + curPosition);
+            // console.log('scrollstart at: ' + curPosition);
             var transBoundary = ScrollHelp.getMaxTranslate('page', this);
             if (endTime - lastMoveTime < thresholdTime) {
                 var initialSpeed = 1000 * ScrollHelp.calSpeed(distYIntervals, timeIntervals, totalDistY, elapsedTime);
@@ -443,7 +443,7 @@ define(function() {
                 startPosition: startTop,
                 transBoundary: transBoundary
             });
-            console.log('scrollend at: ' + curPosition);
+            // console.log('scrollend at: ' + curPosition);
 
             // e.preventDefault();
         }, false);
