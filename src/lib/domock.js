@@ -65,7 +65,7 @@ define(['domini'], function (domini) {
             tag: 'DIV',
             class: 'test-div',
             style: {
-                'height': '200px',
+                // 'height': '200px',
                 'overflow': 'hidden'
             }
         };

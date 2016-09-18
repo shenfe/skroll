@@ -2,7 +2,7 @@ define(function () {
     var _list = null,
         _conf = {
             hideAsInit: true,
-            mode: 0, // 1: active, to get element pos in time; 0: passive, to keep element pos and wait for changes to come.
+            mode: 1, // 1: active, to get element pos in time; 0: passive, to keep element pos and wait for changes to come.
             _liveRangeOffset: 0,
             get liveRangeOffset() {
                 if(this._liveRangeOffset) return this._liveRangeOffset;
@@ -31,7 +31,7 @@ define(function () {
             touchEndLock: false,
             showBegin: 0,
             showEnd: 0,
-            childrenLen: 0,
+            listLen: 0,
             begin: 0, // 刚好没过(<=)pos的元素索引，从1到len-2
             pos: 0,
             dir: 0, // 0: down, 1: up
@@ -41,10 +41,14 @@ define(function () {
             },
             pIndex: [], // position
             pIndexOf: function(i, children) {
-                return _conf.mode === 0 ? this.pIndex[i] : children[i].offsetTop; // or use getBoundingClientRect() ?
+                if(_conf.mode === 0) return this.pIndex[i];
+                var r = children[i].offsetTop; // or use getBoundingClientRect() ?
+                if(r === 0) return this.preHeight;
+                return r;
             },
             vIndex: [], // visible
             dIndex: [], // display
+            rIndex: [], // removal
             preHeight: 0,
             subHeight: 0,
             minHeight: 1000000 // minimum height of a child node
@@ -84,10 +88,13 @@ define(function () {
         var curH, minH = 1000000;
         for (var i = 0; i < len; i++) {
             children[i].setAttribute('data-key', i);
-            _cache.pIndex[i] = h;
-            curH = _cache.hIndex[i] = children[i].offsetHeight;
+            curH = children[i].offsetHeight;
             if(curH < minH && curH > 12) {
                 minH = curH;
+            }
+            if(_conf.mode === 0) {
+                _cache.pIndex[i] = h;
+                _cache.hIndex[i] = curH;
             }
             h += curH;
             _cache.vIndex[i] = true;
@@ -110,10 +117,11 @@ define(function () {
 
         _initIndex();
 
+        var len = children.length;
+
         if(_conf.hideAsInit) { // 隐藏首尾
             var tempBegin = 0 - _conf.liveRangeOffset,
-                tempEnd = 0 + _conf.liveRange,
-                len = children.length;
+                tempEnd = 0 + _conf.liveRange;
             if(tempBegin < 0) tempBegin = 0;
             if(tempEnd > len) tempEnd = len;
             var i;
@@ -134,14 +142,17 @@ define(function () {
             _cache.showBegin = tempBegin;
             _cache.showEnd = tempEnd - 1;
         }
+
+        _cache.listLen = len;
     };
 
     var _getBeginOfScrollEnd = function(pos, len, children) {
         var begin = -1, i;
-        console.log('    find new begin of scroll-end, from: ' + _cache.begin);
-        if (_cache.dir == 0) { // 向下移动
+        // console.log('    find new begin of scroll-end, from: ' + _cache.begin);
+        if (_cache.dir === 0) { // 向下移动
             var pi;
             for (i = _cache.begin; i >= 0; i--) {
+                if(_cache.rIndex[i] === true) continue;
                 pi = _cache.pIndexOf(i, children);
                 if (pi <= pos) { // 第i个元素刚好没过pos
                     begin = i;
@@ -152,6 +163,7 @@ define(function () {
         } else { // 向上移动
             var pi;
             for (i = _cache.begin; i < len; i++) {
+                if(_cache.rIndex[i] === true) continue;
                 pi = _cache.pIndexOf(i, children);
                 if (pi > pos) { // 第i个元素刚好超过pos
                     begin = i - 1;
@@ -160,20 +172,22 @@ define(function () {
             }
             if(begin < 0) begin = len - 1;
         }
-        console.log('                                  to: ' + begin);
+        // console.log('                                  to: ' + begin);
         return begin;
     };
 
     var _getBeginOfTouchStart = function(pos, len, children) {
         var begin = _cache.begin, i;
-        if (_cache.dir == 0) { // 向下移动
+        if (_cache.dir === 0) { // 向下移动
             for (i = _cache.begin; i < len; i++) {
+                if(_cache.rIndex[i] === true) continue;
                 if (_cache.pIndexOf(i, children) <= pos) { // 第i个元素刚好没过pos
                     begin = i;
                 } else break;
             }
         } else { // 向上移动
             for (i = _cache.begin; i >= 0; i--) {
+                if(_cache.rIndex[i] === true) continue;
                 if (_cache.pIndexOf(i, children) > pos) { // 第i个元素刚好超过pos
                     continue;
                 } else {
@@ -193,6 +207,7 @@ define(function () {
         var i;
         if (_cache.pIndexOf(begin, children) > pos) { // 第begin个元素过pos
             for (i = begin - 1; i >= 0; i--) {
+                if(_cache.rIndex[i] === true) continue;
                 if (_cache.pIndexOf(i, children) <= pos) { // 第i个元素刚好没过pos
                     return i;
                 }
@@ -200,6 +215,7 @@ define(function () {
             return 0;
         }
         for (i = begin + 1; i < len; i++) {
+            if(_cache.rIndex[i] === true) continue;
             if (_cache.pIndexOf(i, children) > pos) { // 第i个元素刚好过pos
                 return i - 1;
             }
@@ -207,13 +223,51 @@ define(function () {
         return len - 1;
     }
 
-    var updateOnElementUpdate = function() {
+    var updateByForce = function() {
         var children = _list.childNodes;
         var len = children.length;
         var begin = _getBeginClosed();
-        rshow(begin, begin - _conf.liveRangeOffset, len, children, true);
-        show(begin, begin + _conf.liveRange - 1, len, children, true);
+        rshow(begin, begin - _conf.liveRangeOffset, len, children, true, true);
+        show(begin, begin + _conf.liveRange - 1, len, children, true, true);
         _cache.begin = begin;
+    };
+
+    var updateOnElementAdd = function(olen, nlen) {
+        var children = _list.childNodes;
+        if(!olen) {
+            olen = _cache.listLen;
+        }
+        if(!nlen) {
+            nlen = children.length;
+        }
+
+        var ifShow = _cache.vIndex[olen - 1];
+        if(olen < nlen) {
+            _cache.listLen = nlen;
+            var h = _cache.pIndexOf(olen - 1, children) + _cache.hIndexOf(olen - 1, children);
+            var curH;
+            for(var i = olen; i < nlen; i++) {
+                if(_cache.rIndex[i] === true) continue;
+                children[i].setAttribute('data-key', i);
+                curH = children[i].offsetHeight;
+                if(_conf.mode === 0) {
+                    _cache.pIndex[i] = h;
+                    _cache.hIndex[i] = curH;
+                }
+                h += curH;
+                _cache.vIndex[i] = ifShow;
+                if(_conf.displayNeeded) _cache.dIndex[i] = _getStyle(children[i], 'display');
+                if(!ifShow) {
+                    children[i].style.display = 'none';
+                    _cache.subHeight += curH;
+                }
+            }
+            if(!ifShow) _list.style.paddingBottom = _cache.subHeight + 'px';
+        }
+    };
+
+    var _checkListLen = function(olen, nlen) {
+        if(olen !== nlen) updateOnElementAdd(olen, nlen);
     };
 
     var updateOnTouchEnd = function (pos) {
@@ -228,11 +282,14 @@ define(function () {
 
         var children = _list.childNodes;
         var len = children.length;
+
+        _checkListLen(_cache.listLen, len);
+
         var begin = 0;
         var i = 0, j = 0;
 
         if (pos < 0) pos = -pos;
-        if (pos == _cache.pos) {
+        if (pos === _cache.pos) {
             _cache.touchEndLock = false;
             return;
         }
@@ -245,10 +302,10 @@ define(function () {
 
         begin = _getBeginOfScrollEnd(pos, len, children);
 
-        console.log('                    to begin: ' + begin);
+        // console.log('                    to begin: ' + begin);
 
         var to;
-        if(_cache.dir == 0) { // 向下移动
+        if(_cache.dir === 0) { // 向下移动
             to = begin - _conf.liveRangeOffset;
             rshow(_cache.begin, to, len, children, true);
             // console.log('upto: ' + to);
@@ -267,12 +324,13 @@ define(function () {
         //TODO
     };
 
-    var show = function(begin, end, len, children, ifCheck) { // go down
+    var show = function(begin, end, len, children, ifCheck, forceUpdate) { // go down
         if(begin < 0) begin = 0;
         if(end > len - 1) end = len - 1;
 
         var displayNeeded = _conf.displayNeeded;
         for (var j = begin; j <= end; j++) {
+            if(_cache.rIndex[j] === true) continue;
             if(_cache.vIndex[j]) continue;
             _cache.vIndex[j] = true;
             children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
@@ -281,7 +339,11 @@ define(function () {
 
         if(ifCheck) {
             for (var j = end + 1; j < len; j++) {
-                if(!_cache.vIndex[j]) break;
+                if(_cache.rIndex[j] === true) continue;
+                if(!_cache.vIndex[j]) {
+                    if(forceUpdate) continue;
+                    break;
+                }
                 var hj = _cache.hIndexOf(j, children);
                 children[j].style.display = 'none';
                 _cache.vIndex[j] = false;
@@ -292,12 +354,13 @@ define(function () {
         _list.style.paddingBottom = (_cache.subHeight < 0 ? 0 : _cache.subHeight) + 'px';
     };
 
-    var rshow = function(begin, end, len, children, ifCheck) { // go up
+    var rshow = function(begin, end, len, children, ifCheck, forceUpdate) { // go up
         if(end < 0) end = 0;
         if(begin > len - 1) begin = len - 1;
 
         var displayNeeded = _conf.displayNeeded;
         for (var j = begin; j >= end; j--) {
+            if(_cache.rIndex[j] === true) continue;
             if(_cache.vIndex[j]) continue;
             _cache.vIndex[j] = true;
             children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
@@ -306,7 +369,11 @@ define(function () {
 
         if(ifCheck) {
             for (var j = end - 1; j >= 0; j--) {
-                if(!_cache.vIndex[j]) break;
+                if(_cache.rIndex[j] === true) continue;
+                if(!_cache.vIndex[j]) {
+                    if(forceUpdate) continue;
+                    break;
+                }
                 var hj = _cache.hIndexOf(j, children);
                 children[j].style.display = 'none';
                 _cache.vIndex[j] = false;
@@ -323,12 +390,13 @@ define(function () {
             var newH = el.offsetHeight;
             var d = newH - _cache.hIndex[i];
             for(var i = idx, len = _cache.hIndex.length; i < len; i++) {
+                if(_cache.rIndex[i] === true) continue;
                 _cache.hIndex[i] += d;
                 _cache.pIndex[i] += d;
             }
         }
 
-        updateOnElementUpdate();
+        updateByForce();
     };
 
     return {
@@ -341,6 +409,14 @@ define(function () {
         },
         onElementUpdate: function(el) {
             updateElement(el);
+        },
+        onElementRemove: function(el) {
+            var index = parseInt(el.getAttribute('data-key'));
+            _cache.rIndex[index] = true;
+            console.log('removing ' + index);
+        },
+        onElementAdd: function(el) {
+            updateOnElementAdd();
         }
     }
 });
