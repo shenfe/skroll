@@ -215,7 +215,7 @@ define(function() {
             return parseFloat(s0) + (v > 0 ? 1 : -1) * v * v / (2 * Math.abs(a));
         },
         _setTransitionClass: function(el, time, x1, y1, x2, y2) {
-            var t = time ? ('all ' + time + 's cubic-bezier(' + x1 + ', ' + y1 + ', ' + x2 + ', ' + y2 + ')') : x1;
+            var t = time ? ('transform ' + time + 's cubic-bezier(' + x1 + ', ' + y1 + ', ' + x2 + ', ' + y2 + ')') : x1;
             el.style.transition = el.style.WebkitTransition = t;
             return t;
         },
@@ -319,8 +319,10 @@ define(function() {
         acceleration = conf.acceleration || 4000;
         scrollBarConf.mode = conf.scrollBarMode || 0;
         ifRequestAnimationFrame = !!conf.raf;
-        plugins = conf.plugins;
 
+        ScrollHelp.updateHeights();
+
+        plugins = conf.plugins;
         putPlugins();
         eventQueues.init(page);
 
@@ -336,7 +338,7 @@ define(function() {
 
             ScrollHelp.updateHeights();
 
-            if(scrollBarConf.mode != 0 && heightOf.parent) {
+            if(scrollBarConf.mode != 0 && heightOf.parent && heightOf.page && heightOf.parent < heightOf.page) {
                 var b = ScrollHelp.getScrollBar();
                 if(scrollBarConf.mode == 1) {
                     b.parentNode.style.display = 'block';
@@ -383,7 +385,7 @@ define(function() {
             distYIntervals.push(nowY - thenY);
             timeIntervals.push(lastMoveTime - lastLastMoveTime);
 
-            if(scrollBarConf.mode != 0 && heightOf.parent) {
+            if(scrollBarConf.mode != 0 && heightOf.parent && heightOf.page) {
                 ScrollHelp.setTranslate('bar', ScrollHelp.getScrollBar(), -heightOf.foo * (newY / heightOf.page), true);
             }
 
@@ -409,7 +411,7 @@ define(function() {
             // console.log('touchend at: ' + curPosition);
             // console.log('scrollstart at: ' + curPosition);
             var transBoundary = ScrollHelp.getMaxTranslate('page', this);
-            if (endTime - lastMoveTime < thresholdTime) {
+            if (endTime - lastMoveTime < thresholdTime && heightOf.parent && heightOf.page && heightOf.parent < heightOf.page) {
                 var initialSpeed = 1000 * ScrollHelp.calSpeed(distYIntervals, timeIntervals, totalDistY, elapsedTime);
                 // console.log('speed: ' + initialSpeed);
                 if(Math.abs(initialSpeed) > maxSpeed) {
@@ -419,7 +421,7 @@ define(function() {
                 var transResult = ScrollHelp.updateTransition('page', this, initialSpeed, acceleration, scrollPosition, 0, transBoundary);
                 curPosition = transResult.position;
 
-                if(scrollBarConf.mode != 0 && heightOf.parent) {
+                if(scrollBarConf.mode != 0) {
                     var b = ScrollHelp.getScrollBar();
                     ScrollHelp._setTransitionClass(b, false, transResult.transition);
                     ScrollHelp.setTranslate('bar', b, -curPosition / heightOf.page * heightOf.foo, true);
@@ -429,21 +431,21 @@ define(function() {
                         }, transResult.time * 1000 + scrollBarConf.hideDelay);
                     }
                 }
-            }
 
-            eventQueues.end(this, {
-                scrollDir: scrollDir,
-                totalDistX: totalDistX,
-                totalDistY: totalDistY,
-                elapsedTime: elapsedTime,
-                distXIntervals: distXIntervals,
-                distYIntervals: distYIntervals,
-                timeIntervals: timeIntervals,
-                endPosition: curPosition,
-                startPosition: startTop,
-                transBoundary: transBoundary
-            });
-            // console.log('scrollend at: ' + curPosition);
+                eventQueues.end(this, {
+                    scrollDir: scrollDir,
+                    totalDistX: totalDistX,
+                    totalDistY: totalDistY,
+                    elapsedTime: elapsedTime,
+                    distXIntervals: distXIntervals,
+                    distYIntervals: distYIntervals,
+                    timeIntervals: timeIntervals,
+                    endPosition: curPosition,
+                    startPosition: startTop,
+                    transBoundary: transBoundary
+                });
+                // console.log('scrollend at: ' + curPosition);
+            }
 
             // e.preventDefault();
         }, false);

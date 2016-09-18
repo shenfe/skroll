@@ -28,7 +28,7 @@ requirejs(['scroll', 'hide', 'domini', 'domock'], function(Scroll, Hide, Domini,
         for (var i = 0; i < levels[0]; i++) {
             var child = document.createElement('div');
             child.className = 'test-div';
-            child.innerHTML = i + 1;
+            child.innerHTML = i;
             div.appendChild(child);
         }
     };
