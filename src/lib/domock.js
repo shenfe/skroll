@@ -63,7 +63,11 @@ define(['domini'], function (domini) {
     var nodeLevelDef = [function () {
         return {
             tag: 'DIV',
-            class: 'test-div'
+            class: 'test-div',
+            style: {
+                'height': '200px',
+                'overflow': 'hidden'
+            }
         };
     }, function () {
         return {

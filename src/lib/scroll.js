@@ -25,8 +25,8 @@ define(function() {
         restraint = 100, // maximum distance allowed at the same time in perpendicular direction
         allowedTime = 300, // maximum time allowed to travel that distance
         thresholdTime = 100,
-        acceleration,
-        maxSpeed = 8000,
+        acceleration = 4000,
+        maxSpeed = 4000,
         startTime,
         scrollPosition = 0,
         distXIntervals = [],
@@ -357,7 +357,8 @@ define(function() {
             eventQueues.start(this, {
                 position: startTop
             });
-            // console.log('touchstart at: ' + startTop);
+
+            console.log('touchstart ' + startTop);
 
             // e.preventDefault();
         }, false);
@@ -408,12 +409,9 @@ define(function() {
 
             var endTime = Date.now();
             var curPosition = scrollPosition;
-            // console.log('touchend at: ' + curPosition);
-            // console.log('scrollstart at: ' + curPosition);
             var transBoundary = ScrollHelp.getMaxTranslate('page', this);
             if (endTime - lastMoveTime < thresholdTime && heightOf.parent && heightOf.page && heightOf.parent < heightOf.page) {
                 var initialSpeed = 1000 * ScrollHelp.calSpeed(distYIntervals, timeIntervals, totalDistY, elapsedTime);
-                // console.log('speed: ' + initialSpeed);
                 if(Math.abs(initialSpeed) > maxSpeed) {
                     initialSpeed = (initialSpeed < 0 ? -maxSpeed : maxSpeed);
                 }
@@ -444,7 +442,8 @@ define(function() {
                     startPosition: startTop,
                     transBoundary: transBoundary
                 });
-                // console.log('scrollend at: ' + curPosition);
+
+                console.log('touchend ' + curPosition);
             }
 
             // e.preventDefault();
