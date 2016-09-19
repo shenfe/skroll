@@ -24,7 +24,7 @@ define(function () {
             liveRatio: 1,
             displayNeeded: false,
             ifRequestAnimationFrame: false,
-            screenMaxHeight: window.screen.height * 2
+            screenMaxHeight: window.screen.height
         },
         _cache = {
             touchStartLock: false,
@@ -37,15 +37,32 @@ define(function () {
             dir: 0, // 0: down, 1: up
             hIndex: [], // height
             hIndexOf: function(i, children) {
-                return _conf.mode === 0 ? this.hIndex[i] : children[i].offsetHeight;
+                if(_conf.mode === 0) return this.hIndex[i];
+                if(i <= this.hSafeTo) return this.hIndex[i];
+                var r;
+                if(i < this.pSafeTo) {
+                    r = this.pIndex[i + 1] - this.pIndex[i];
+                } else {
+                    r = children[i].offsetHeight;
+                }
+                this.hIndex[i] = r;
+                return r;
             },
             pIndex: [], // position
             pIndexOf: function(i, children) {
                 if(_conf.mode === 0) return this.pIndex[i];
+                if(i <= this.pSafeTo) return this.pIndex[i];
                 var r = children[i].offsetTop; // or use getBoundingClientRect() ?
-                if(r === 0) return this.preHeight;
+                if(r === 0) r = this.preHeight;
+                if(this.pIndex[i] === r) {
+                    this.pSafeTo = i;
+                    this.hSafeTo = (i === 0 ? i : (i - 1));
+                }
+                else this.pIndex[i] = r;
                 return r;
             },
+            hSafeTo: -1,
+            pSafeTo: 0,
             vIndex: [], // visible
             dIndex: [], // display
             rIndex: [], // removal
@@ -103,6 +120,7 @@ define(function () {
         _cache.showBegin = 0;
         _cache.showEnd = len - 1;
         _cache.minHeight = minH;
+        console.log('minItemHeight: ' + _cache.minHeight);
     };
 
     var init = function (list) {
@@ -413,7 +431,7 @@ define(function () {
         onElementRemove: function(el) {
             var index = parseInt(el.getAttribute('data-key'));
             _cache.rIndex[index] = true;
-            console.log('removing ' + index);
+            // console.log('removing ' + index);
         },
         onElementAdd: function(el) {
             updateOnElementAdd();
