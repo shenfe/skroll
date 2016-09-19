@@ -26,8 +26,8 @@ define(function() {
             restraint = 100, // maximum distance allowed at the same time in perpendicular direction
             allowedTime = 300, // maximum time allowed to travel that distance
             thresholdTime = 100,
-            acceleration = 4000,
-            maxSpeed = 8000,
+            acceleration = 2000,
+            maxSpeed = 6000,
             startTime,
             scrollPosition = 0,
             distXIntervals = [],
@@ -351,8 +351,8 @@ define(function() {
         /*******************************************************************************/
 
         page = dom;
-        acceleration = conf.acceleration || 4000;
-        scrollBarConf.mode = conf.scrollBarMode || 0;
+        acceleration = conf.acceleration || acceleration;
+        scrollBarConf.mode = conf.scrollBarMode || scrollBarConf.mode;
         ifRequestAnimationFrame = !!conf.raf;
 
         ScrollHelp.updateHeights();
