@@ -27,7 +27,7 @@ define(function() {
             allowedTime = 300, // maximum time allowed to travel that distance
             thresholdTime = 100,
             acceleration = 2000,
-            maxSpeed = 8000,
+            maxSpeed = 6000,
             startTime,
             scrollPosition = 0,
             distXIntervals = [],
