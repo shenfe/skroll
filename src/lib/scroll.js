@@ -27,7 +27,7 @@ define(function() {
             allowedTime = 300, // maximum time allowed to travel that distance
             thresholdTime = 100,
             acceleration = 4000,
-            maxSpeed = 4000,
+            maxSpeed = 8000,
             startTime,
             scrollPosition = 0,
             distXIntervals = [],
@@ -393,9 +393,9 @@ define(function() {
                 position: startTop
             });
 
-            console.log('touchstart ' + startTop);
+            // console.log('touchstart ' + startTop);
 
-            // e.preventDefault();
+            e.preventDefault();
         }, false);
 
         page.addEventListener('touchmove', function(e) {
@@ -425,7 +425,7 @@ define(function() {
                 ScrollHelp.setTranslate('bar', ScrollHelp.getScrollBar(), -heightOf.foo * (newY / heightOf.page), true);
             }
 
-            // e.preventDefault(); // prevent scrolling when inside DIV
+            e.preventDefault(); // prevent scrolling when inside DIV
         }, false);
 
         page.addEventListener('touchend', function(e) {
@@ -478,10 +478,10 @@ define(function() {
                     transBoundary: transBoundary
                 });
 
-                console.log('touchend ' + curPosition);
+                // console.log('touchend ' + curPosition);
             }
 
-            // e.preventDefault();
+            e.preventDefault();
         }, false);
 
         this.add = function(el) {
