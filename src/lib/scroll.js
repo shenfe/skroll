@@ -25,7 +25,7 @@ define(function() {
             threshold = 150, //required min distance traveled to be considered swipe
             restraint = 100, // maximum distance allowed at the same time in perpendicular direction
             allowedTime = 300, // maximum time allowed to travel that distance
-            thresholdTime = 100,
+            thresholdTime = 200,
             acceleration = 1000,
             maxSpeed = 6000,
             startTime,

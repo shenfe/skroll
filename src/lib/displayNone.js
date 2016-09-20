@@ -1,5 +1,7 @@
 define(function () {
     var _list = null,
+        _preBlank,
+        _subBlank,
         _conf = {
             hideAsInit: true,
             mode: 1, // 1: active, to get element pos in time; 0: passive, to keep element pos and wait for changes to come.
@@ -24,7 +26,8 @@ define(function () {
             liveRatio: 1,
             displayNeeded: false,
             ifRequestAnimationFrame: false,
-            screenMaxHeight: window.screen.height
+            screenMaxHeight: window.screen.height,
+            usePaddingOrBlank: 0 // 0: padding, 1: blank
         },
         _cache = {
             touchStartLock: false,
@@ -90,14 +93,32 @@ define(function () {
             dIndex: [], // display
             rIndex: [], // removal
             preHeight: 0,
+            updatePreHeight: function() {
+                if(_conf.usePaddingOrBlank === 0) {
+                    _list.style.paddingTop = _cache.preHeight + 'px';
+                } else {
+                    _preBlank.style.height = _cache.preHeight + 'px';
+                }
+            },
             subHeight: 0,
+            updateSubHeight: function() {
+                if(_conf.usePaddingOrBlank === 0) {
+                    _list.style.paddingBottom = _cache.subHeight + 'px';
+                } else {
+                    _subBlank.style.height = _cache.subHeight + 'px';
+                }
+            },
             minHeight: 1000000 // minimum height of a child node
         };
 
     window._conf = _conf;
     window._cache = _cache;
 
-    var helper = {};
+    var childNodes = function() {
+        if(_conf.usePaddingOrBlank === 0) return _list.childNodes;
+        var r = _list.childNodes;
+        return Array.prototype.slice.call(r, 1, r.length - 1);
+    };
 
     var _requestAnimationFrame = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
@@ -122,11 +143,21 @@ define(function () {
     var _initBlank = function () {
         _cache.preHeight = 0;
         _cache.subHeight = 0;
+        if(_conf.usePaddingOrBlank === 1) {
+            var blankStyle = 'width:100%;height:0;padding:0;border:0;margin:0;';
+            _preBlank = document.createElement('div');
+            _preBlank.setAttribute('style', blankStyle);
+            _list.insertBefore(_preBlank, _list.childNodes[0]);
+            _subBlank = document.createElement('div');
+            _subBlank.setAttribute('style', blankStyle);
+            _list.appendChild(_subBlank);
+            _list.appendChild = function(el) {
+                _list.insertBefore(el, _subBlank);
+            };
+        }
     };
 
-    var _initIndex = function () {
-        var children = _list.childNodes;
-        var len = children.length;
+    var _initIndex = function (len, children) {
         var h = 0;
         var curH, minH = 1000000;
         for (var i = 0; i < len; i++) {
@@ -158,11 +189,13 @@ define(function () {
 
         _list = list;
 
+        var len = children.length;
+
+        _initIndex(len, children);
+
         _initBlank();
 
-        _initIndex();
-
-        var len = children.length;
+        if(_conf.usePaddingOrBlank === 1) children = childNodes();
 
         if(_conf.hideAsInit) { // 隐藏首尾
             var tempBegin = 0 - _conf.liveRangeOffset,
@@ -175,14 +208,14 @@ define(function () {
                 children[i].style.display = 'none';
                 _cache.vIndex[i] = false;
             }
-            _list.style.paddingTop = _cache.preHeight + 'px';
+            _cache.updatePreHeight();
 
             for(i = tempEnd; i < len; i++) {
                 _cache.subHeight += _cache.hIndexOf(i, children);
                 children[i].style.display = 'none';
                 _cache.vIndex[i] = false;
             }
-            _list.style.paddingBottom = _cache.subHeight + 'px';
+            _cache.updateSubHeight();
 
             _cache.showBegin = tempBegin;
             _cache.showEnd = tempEnd - 1;
@@ -255,7 +288,7 @@ define(function () {
 
     var _getBeginClosed = function() {
         // console.log('_getBeginClosed');
-        var children = list.childNodes;
+        var children = childNodes();
         var len = children.length;
         var pos = _cache.pos;
         var begin = _cache.begin, i;
@@ -286,7 +319,7 @@ define(function () {
 
     var updateByForce = function() {
         // console.log('updateByForce');
-        var children = _list.childNodes;
+        var children = childNodes();
         var len = children.length;
         var begin = _getBeginClosed();
         rshow(begin, begin - _conf.liveRangeOffset, len, children, true, true);
@@ -297,7 +330,7 @@ define(function () {
 
     var updateOnElementAdd = function(olen, nlen) {
         // console.log('updateOnElementAdd');
-        var children = _list.childNodes;
+        var children = childNodes();
         if(!olen) {
             olen = _cache.listLen;
         }
@@ -328,7 +361,7 @@ define(function () {
                 }
             }
             _cache.pUnsafeAll();
-            if(!ifShow) _list.style.paddingBottom = _cache.subHeight + 'px';
+            if(!ifShow) _cache.updateSubHeight();
         }
     };
 
@@ -348,7 +381,7 @@ define(function () {
 
         _cache.touchEndLock = true;
 
-        var children = _list.childNodes;
+        var children = childNodes();
         var len = children.length;
 
         _checkListLen(_cache.listLen, len);
@@ -426,7 +459,8 @@ define(function () {
             }
         }
 
-        _list.style.paddingBottom = (_cache.subHeight < 0 ? 0 : _cache.subHeight) + 'px';
+        if(_cache.subHeight < 0) _cache.subHeight = 0;
+        _cache.updateSubHeight();
     };
 
     var rshow = function(begin, end, len, children, ifCheck, forceUpdate) { // go up
@@ -461,7 +495,8 @@ define(function () {
             }
         }
 
-        _list.style.paddingTop = (_cache.preHeight < 0 ? 0 : _cache.preHeight) + 'px';
+        if(_cache.preHeight < 0) _cache.preHeight = 0;
+        _cache.updatePreHeight();
     };
 
     var updateElement = function (el) {
@@ -469,7 +504,7 @@ define(function () {
         // if(_conf.mode === 0) {
             var idx = parseInt(el.getAttribute('data-key'));
             var newH = el.offsetHeight;
-            var d = newH - _cache.hIndex[i];
+            var d = newH - _cache.hIndex[idx];
             for(var i = idx, len = _cache.hIndex.length; i < len; i++) {
                 if(_cache.rIndex[i] === true) continue;
                 _cache.hIndex[i] += d;
