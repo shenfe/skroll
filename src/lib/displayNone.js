@@ -38,7 +38,7 @@ define(function () {
             hIndex: [], // height
             hIndexOf: function(i, children) {
                 if(_conf.mode === 0) return this.hIndex[i];
-                if(i <= this.hSafeTo) return this.hIndex[i];
+                if(i < this.pSafeTo) return this.hIndex[i];
                 var r;
                 if(i < this.pSafeTo) {
                     r = this.pIndex[i + 1] - this.pIndex[i];
@@ -49,19 +49,20 @@ define(function () {
                 return r;
             },
             pIndex: [], // position
-            pIndexOf: function(i, children) {
+            pIndexOf: function(i, children) { //TODO: RECONSIDER
                 if(_conf.mode === 0) return this.pIndex[i];
                 if(i <= this.pSafeTo) return this.pIndex[i];
                 var r = children[i].offsetTop; // or use getBoundingClientRect() ?
                 if(r === 0) r = this.preHeight;
                 if(this.pIndex[i] === r) {
                     this.pSafeTo = i;
-                    this.hSafeTo = (i === 0 ? i : (i - 1));
                 }
                 else this.pIndex[i] = r;
                 return r;
             },
-            hSafeTo: -1,
+            pUnsafeAll: function() { // 使用过pIndexOf后，需要及时将pSafeTo重置
+                this.pSafeTo = 0;
+            },
             pSafeTo: 0,
             vIndex: [], // visible
             dIndex: [], // display
@@ -70,6 +71,8 @@ define(function () {
             subHeight: 0,
             minHeight: 1000000 // minimum height of a child node
         };
+
+    window._cache = _cache;
 
     var helper = {};
 
@@ -109,10 +112,10 @@ define(function () {
             if(curH < minH && curH > 12) {
                 minH = curH;
             }
-            if(_conf.mode === 0) {
+            // if(_conf.mode === 0) {
                 _cache.pIndex[i] = h;
                 _cache.hIndex[i] = curH;
-            }
+            // }
             h += curH;
             _cache.vIndex[i] = true;
             if (_conf.displayNeeded) _cache.dIndex[i] = _getStyle(children[i], 'display');
@@ -165,6 +168,7 @@ define(function () {
     };
 
     var _getBeginOfScrollEnd = function(pos, len, children) {
+        console.log('_getBeginOfScrollEnd');
         var begin = -1, i;
         // console.log('    find new begin of scroll-end, from: ' + _cache.begin);
         if (_cache.dir === 0) { // 向下移动
@@ -177,6 +181,7 @@ define(function () {
                     break;
                 }
             }
+            _cache.pUnsafeAll();
             if(begin < 0) begin = 0;
         } else { // 向上移动
             var pi;
@@ -188,6 +193,7 @@ define(function () {
                     break;
                 }
             }
+            _cache.pUnsafeAll();
             if(begin < 0) begin = len - 1;
         }
         // console.log('                                  to: ' + begin);
@@ -195,6 +201,7 @@ define(function () {
     };
 
     var _getBeginOfTouchStart = function(pos, len, children) {
+        console.log('_getBeginOfTouchStart');
         var begin = _cache.begin, i;
         if (_cache.dir === 0) { // 向下移动
             for (i = _cache.begin; i < len; i++) {
@@ -203,6 +210,7 @@ define(function () {
                     begin = i;
                 } else break;
             }
+            _cache.pUnsafeAll();
         } else { // 向上移动
             for (i = _cache.begin; i >= 0; i--) {
                 if(_cache.rIndex[i] === true) continue;
@@ -213,35 +221,45 @@ define(function () {
                     break;
                 }
             }
+            _cache.pUnsafeAll();
         }
         return begin;
     };
 
     var _getBeginClosed = function() {
+        console.log('_getBeginClosed');
         var children = list.childNodes;
         var len = children.length;
         var pos = _cache.pos;
         var begin = _cache.begin, i;
         var i;
+        var r = -1;
         if (_cache.pIndexOf(begin, children) > pos) { // 第begin个元素过pos
+            r = 0;
             for (i = begin - 1; i >= 0; i--) {
                 if(_cache.rIndex[i] === true) continue;
                 if (_cache.pIndexOf(i, children) <= pos) { // 第i个元素刚好没过pos
-                    return i;
+                    r = i;
+                    break;
                 }
             }
-            return 0;
+            _cache.pUnsafeAll();
+            return r;
         }
+        r = len - 1;
         for (i = begin + 1; i < len; i++) {
             if(_cache.rIndex[i] === true) continue;
             if (_cache.pIndexOf(i, children) > pos) { // 第i个元素刚好过pos
-                return i - 1;
+                r = i - 1;
+                break;
             }
         }
-        return len - 1;
+        _cache.pUnsafeAll();
+        return r;
     }
 
     var updateByForce = function() {
+        console.log('updateByForce');
         var children = _list.childNodes;
         var len = children.length;
         var begin = _getBeginClosed();
@@ -251,6 +269,7 @@ define(function () {
     };
 
     var updateOnElementAdd = function(olen, nlen) {
+        console.log('updateOnElementAdd');
         var children = _list.childNodes;
         if(!olen) {
             olen = _cache.listLen;
@@ -268,10 +287,10 @@ define(function () {
                 if(_cache.rIndex[i] === true) continue;
                 children[i].setAttribute('data-key', i);
                 curH = children[i].offsetHeight;
-                if(_conf.mode === 0) {
+                // if(_conf.mode === 0) {
                     _cache.pIndex[i] = h;
                     _cache.hIndex[i] = curH;
-                }
+                // }
                 h += curH;
                 _cache.vIndex[i] = ifShow;
                 if(_conf.displayNeeded) _cache.dIndex[i] = _getStyle(children[i], 'display');
@@ -280,15 +299,18 @@ define(function () {
                     _cache.subHeight += curH;
                 }
             }
+            _cache.pUnsafeAll();
             if(!ifShow) _list.style.paddingBottom = _cache.subHeight + 'px';
         }
     };
 
     var _checkListLen = function(olen, nlen) {
+        console.log('_checkListLen');
         if(olen !== nlen) updateOnElementAdd(olen, nlen);
     };
 
     var updateOnTouchEnd = function (pos) {
+        console.log('updateOnTouchEnd');
         if(_cache.touchStartLock) {
             window.setTimeout(function() {
                 updateOnTouchEnd(pos);
@@ -343,6 +365,7 @@ define(function () {
     };
 
     var show = function(begin, end, len, children, ifCheck, forceUpdate) { // go down
+        console.log('show');
         if(begin < 0) begin = 0;
         if(end > len - 1) end = len - 1;
 
@@ -373,6 +396,7 @@ define(function () {
     };
 
     var rshow = function(begin, end, len, children, ifCheck, forceUpdate) { // go up
+        console.log('rshow');
         if(end < 0) end = 0;
         if(begin > len - 1) begin = len - 1;
 
@@ -403,7 +427,8 @@ define(function () {
     };
 
     var updateElement = function (el) {
-        if(_conf.mode === 0) {
+        console.log('updateElement');
+        // if(_conf.mode === 0) {
             var idx = parseInt(el.getAttribute('data-key'));
             var newH = el.offsetHeight;
             var d = newH - _cache.hIndex[i];
@@ -412,7 +437,7 @@ define(function () {
                 _cache.hIndex[i] += d;
                 _cache.pIndex[i] += d;
             }
-        }
+        // }
 
         updateByForce();
     };
