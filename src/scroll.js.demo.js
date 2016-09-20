@@ -54,7 +54,7 @@ requirejs(['scroll', 'hide', 'domini', 'domock'], function(Scroll, Hide, Domini,
     if(test_content == 1)
         test_generateContent1(test_targetDom, [test_listLength]);
     else
-        test_generateContent2(test_targetDom, [test_listLength, 2, 1, 1]);
+        test_generateContent2(test_targetDom, [test_listLength, 4, 2, 2]);
 
     if(test_native) return;
 
