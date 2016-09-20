@@ -186,7 +186,8 @@ define(function() {
                 return heightOf.foo - heightOf.bar;
             },
             _setT: function(el, t) {
-                el.style.transform = el.style.WebkitTransform = 'translate3d(0,' + t + 'px,0)';
+                // el.style.transform = el.style.WebkitTransform = 'translate3d(0,' + t + 'px,0)';
+                el.style.transform = el.style.WebkitTransform = 'translateY(' + t + 'px)';
             },
             setTranslate: function(id, el, d, r) {
                 var t = d || 0;

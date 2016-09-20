@@ -76,10 +76,10 @@ define(function () {
                     }
                     this.pIndex[i] = r;
                 }
-                console.log({
-                    i: i,
-                    p: r
-                });
+                // console.log({
+                //     i: i,
+                //     p: r
+                // });
                 return r;
             },
             pUnsafeAll: function() { // 使用过hIndexOf、pIndexOf后，需要及时将pSafeTo重置
@@ -192,11 +192,11 @@ define(function () {
     };
 
     var _getBeginOfScrollEnd = function(pos, len, children) {
-        console.log('_getBeginOfScrollEnd');
+        // console.log('_getBeginOfScrollEnd');
         var begin = -1, i;
 
         _cache.pIndexOf(_cache.begin, len, children, -1);
-        
+
         if (_cache.dir === 0) { // 向下移动
             var pi;
             for (i = _cache.begin; i >= 0; i--) {
@@ -226,7 +226,7 @@ define(function () {
     };
 
     var _getBeginOfTouchStart = function(pos, len, children) {
-        console.log('_getBeginOfTouchStart');
+        // console.log('_getBeginOfTouchStart');
         var begin = _cache.begin, i;
 
         _cache.pIndexOf(_cache.begin, len, children, -1);
@@ -254,7 +254,7 @@ define(function () {
     };
 
     var _getBeginClosed = function() {
-        console.log('_getBeginClosed');
+        // console.log('_getBeginClosed');
         var children = list.childNodes;
         var len = children.length;
         var pos = _cache.pos;
@@ -285,7 +285,7 @@ define(function () {
     }
 
     var updateByForce = function() {
-        console.log('updateByForce');
+        // console.log('updateByForce');
         var children = _list.childNodes;
         var len = children.length;
         var begin = _getBeginClosed();
@@ -296,7 +296,7 @@ define(function () {
     };
 
     var updateOnElementAdd = function(olen, nlen) {
-        console.log('updateOnElementAdd');
+        // console.log('updateOnElementAdd');
         var children = _list.childNodes;
         if(!olen) {
             olen = _cache.listLen;
@@ -333,12 +333,12 @@ define(function () {
     };
 
     var _checkListLen = function(olen, nlen) {
-        console.log('_checkListLen');
+        // console.log('_checkListLen');
         if(olen !== nlen) updateOnElementAdd(olen, nlen);
     };
 
     var updateOnTouchEnd = function (pos) {
-        console.log('updateOnTouchEnd');
+        // console.log('updateOnTouchEnd');
         if(_cache.touchStartLock) {
             window.setTimeout(function() {
                 updateOnTouchEnd(pos);
@@ -370,7 +370,7 @@ define(function () {
 
         begin = _getBeginOfScrollEnd(pos, len, children);
 
-        console.log('                    to begin: ' + begin);
+        // console.log('                    to begin: ' + begin);
 
         var to;
         if(_cache.dir === 0) { // 向下移动
@@ -395,13 +395,13 @@ define(function () {
     };
 
     var show = function(begin, end, len, children, ifCheck, forceUpdate) { // go down
-        console.log('show: ');
+        // console.log('show: ');
         if(begin < 0) begin = 0;
         if(end > len - 1) end = len - 1;
-        console.log({
-            begin: begin,
-            end: end
-        });
+        // console.log({
+        //     begin: begin,
+        //     end: end
+        // });
 
         var displayNeeded = _conf.displayNeeded;
         for (var j = begin; j <= end; j++) {
@@ -430,13 +430,13 @@ define(function () {
     };
 
     var rshow = function(begin, end, len, children, ifCheck, forceUpdate) { // go up
-        console.log('rshow');
+        // console.log('rshow');
         if(end < 0) end = 0;
         if(begin > len - 1) begin = len - 1;
-        console.log({
-            rbegin: begin,
-            rend: end
-        });
+        // console.log({
+        //     rbegin: begin,
+        //     rend: end
+        // });
 
         var displayNeeded = _conf.displayNeeded;
         for (var j = begin; j >= end; j--) {
@@ -465,7 +465,7 @@ define(function () {
     };
 
     var updateElement = function (el) {
-        console.log('updateElement');
+        // console.log('updateElement');
         // if(_conf.mode === 0) {
             var idx = parseInt(el.getAttribute('data-key'));
             var newH = el.offsetHeight;
