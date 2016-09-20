@@ -26,7 +26,7 @@ define(function() {
             restraint = 100, // maximum distance allowed at the same time in perpendicular direction
             allowedTime = 300, // maximum time allowed to travel that distance
             thresholdTime = 100,
-            acceleration = 2000,
+            acceleration = 1000,
             maxSpeed = 6000,
             startTime,
             scrollPosition = 0,
@@ -216,7 +216,7 @@ define(function() {
                 return parseFloat(s0) + (v > 0 ? 1 : -1) * v * v / (2 * Math.abs(a));
             },
             _setTransitionClass: function(el, time, x1, y1, x2, y2) {
-                var t = time ? ('transform ' + time + 's cubic-bezier(' + x1 + ', ' + y1 + ', ' + x2 + ', ' + y2 + ')') : x1;
+                var t = (time === false) ? x1 : ('transform ' + time + 's cubic-bezier(' + x1 + ', ' + y1 + ', ' + x2 + ', ' + y2 + ')');
                 el.style.transition = el.style.WebkitTransition = t;
                 return t;
             },

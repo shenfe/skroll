@@ -60,7 +60,7 @@ define(function () {
                 else this.pIndex[i] = r;
                 return r;
             },
-            pUnsafeAll: function() { // 使用过pIndexOf后，需要及时将pSafeTo重置
+            pUnsafeAll: function() { // 使用过hIndexOf、pIndexOf后，需要及时将pSafeTo重置
                 this.pSafeTo = 0;
             },
             pSafeTo: 0,
@@ -123,7 +123,7 @@ define(function () {
         _cache.showBegin = 0;
         _cache.showEnd = len - 1;
         _cache.minHeight = minH;
-        console.log('minItemHeight: ' + _cache.minHeight);
+        // console.log('minItemHeight: ' + _cache.minHeight);
     };
 
     var init = function (list) {
@@ -168,7 +168,7 @@ define(function () {
     };
 
     var _getBeginOfScrollEnd = function(pos, len, children) {
-        console.log('_getBeginOfScrollEnd');
+        // console.log('_getBeginOfScrollEnd');
         var begin = -1, i;
         // console.log('    find new begin of scroll-end, from: ' + _cache.begin);
         if (_cache.dir === 0) { // 向下移动
@@ -201,7 +201,7 @@ define(function () {
     };
 
     var _getBeginOfTouchStart = function(pos, len, children) {
-        console.log('_getBeginOfTouchStart');
+        // console.log('_getBeginOfTouchStart');
         var begin = _cache.begin, i;
         if (_cache.dir === 0) { // 向下移动
             for (i = _cache.begin; i < len; i++) {
@@ -227,7 +227,7 @@ define(function () {
     };
 
     var _getBeginClosed = function() {
-        console.log('_getBeginClosed');
+        // console.log('_getBeginClosed');
         var children = list.childNodes;
         var len = children.length;
         var pos = _cache.pos;
@@ -259,7 +259,7 @@ define(function () {
     }
 
     var updateByForce = function() {
-        console.log('updateByForce');
+        // console.log('updateByForce');
         var children = _list.childNodes;
         var len = children.length;
         var begin = _getBeginClosed();
@@ -269,7 +269,7 @@ define(function () {
     };
 
     var updateOnElementAdd = function(olen, nlen) {
-        console.log('updateOnElementAdd');
+        // console.log('updateOnElementAdd');
         var children = _list.childNodes;
         if(!olen) {
             olen = _cache.listLen;
@@ -305,12 +305,12 @@ define(function () {
     };
 
     var _checkListLen = function(olen, nlen) {
-        console.log('_checkListLen');
+        // console.log('_checkListLen');
         if(olen !== nlen) updateOnElementAdd(olen, nlen);
     };
 
     var updateOnTouchEnd = function (pos) {
-        console.log('updateOnTouchEnd');
+        // console.log('updateOnTouchEnd');
         if(_cache.touchStartLock) {
             window.setTimeout(function() {
                 updateOnTouchEnd(pos);
@@ -365,11 +365,12 @@ define(function () {
     };
 
     var show = function(begin, end, len, children, ifCheck, forceUpdate) { // go down
-        console.log('show');
+        // console.log('show');
         if(begin < 0) begin = 0;
         if(end > len - 1) end = len - 1;
 
         var displayNeeded = _conf.displayNeeded;
+        _cache.pIndexOf(end, children);
         for (var j = begin; j <= end; j++) {
             if(_cache.rIndex[j] === true) continue;
             if(_cache.vIndex[j]) continue;
@@ -377,8 +378,10 @@ define(function () {
             children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
             _cache.subHeight -= _cache.hIndexOf(j, children);
         }
+        _cache.pUnsafeAll();
 
         if(ifCheck) {
+            _cache.pIndexOf(len - 1, children);
             for (var j = end + 1; j < len; j++) {
                 if(_cache.rIndex[j] === true) continue;
                 if(!_cache.vIndex[j]) {
@@ -390,17 +393,19 @@ define(function () {
                 _cache.vIndex[j] = false;
                 _cache.subHeight += hj;
             }
+            _cache.pUnsafeAll();
         }
 
         _list.style.paddingBottom = (_cache.subHeight < 0 ? 0 : _cache.subHeight) + 'px';
     };
 
     var rshow = function(begin, end, len, children, ifCheck, forceUpdate) { // go up
-        console.log('rshow');
+        // console.log('rshow');
         if(end < 0) end = 0;
         if(begin > len - 1) begin = len - 1;
 
         var displayNeeded = _conf.displayNeeded;
+        _cache.pIndexOf(begin, children);
         for (var j = begin; j >= end; j--) {
             if(_cache.rIndex[j] === true) continue;
             if(_cache.vIndex[j]) continue;
@@ -408,8 +413,10 @@ define(function () {
             children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
             _cache.preHeight -= _cache.hIndexOf(j, children);
         }
+        _cache.pUnsafeAll();
 
         if(ifCheck) {
+            _cache.pIndexOf(end - 1, children);
             for (var j = end - 1; j >= 0; j--) {
                 if(_cache.rIndex[j] === true) continue;
                 if(!_cache.vIndex[j]) {
@@ -421,13 +428,14 @@ define(function () {
                 _cache.vIndex[j] = false;
                 _cache.preHeight += hj;
             }
+            _cache.pUnsafeAll();
         }
 
         _list.style.paddingTop = (_cache.preHeight < 0 ? 0 : _cache.preHeight) + 'px';
     };
 
     var updateElement = function (el) {
-        console.log('updateElement');
+        // console.log('updateElement');
         // if(_conf.mode === 0) {
             var idx = parseInt(el.getAttribute('data-key'));
             var newH = el.offsetHeight;
