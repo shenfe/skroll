@@ -117,6 +117,7 @@ define(function () {
     var childNodes = function() {
         if(_conf.usePaddingOrBlank === 0) return _list.childNodes;
         var r = _list.childNodes;
+        console.log('childNodes ' + (r.length - 2));
         return Array.prototype.slice.call(r, 1, r.length - 1);
     };
 
@@ -199,9 +200,9 @@ define(function () {
 
         if(_conf.hideAsInit) { // 隐藏首尾
             var tempBegin = 0 - _conf.liveRangeOffset,
-                tempEnd = 0 + _conf.liveRange;
+                tempEnd = 0 + _conf.liveRange - 1;
             if(tempBegin < 0) tempBegin = 0;
-            if(tempEnd > len) tempEnd = len;
+            if(tempEnd >= len) tempEnd = len - 1;
             var i;
             for(i = tempBegin - 1; i >= 0; i--) {
                 _cache.preHeight += _cache.hIndexOf(i, children);
@@ -210,7 +211,7 @@ define(function () {
             }
             _cache.updatePreHeight();
 
-            for(i = tempEnd; i < len; i++) {
+            for(i = tempEnd + 1; i < len; i++) {
                 _cache.subHeight += _cache.hIndexOf(i, children);
                 children[i].style.display = 'none';
                 _cache.vIndex[i] = false;
@@ -218,7 +219,7 @@ define(function () {
             _cache.updateSubHeight();
 
             _cache.showBegin = tempBegin;
-            _cache.showEnd = tempEnd - 1;
+            _cache.showEnd = tempEnd;
         }
 
         _cache.listLen = len;
@@ -445,6 +446,9 @@ define(function () {
             _cache.subHeight -= _cache.hIndexOf(j, children);
         }
 
+        _cache.showEnd = end;
+        console.log('showEnd ' + end);
+
         if(ifCheck) {
             for (var j = end + 1; j < len; j++) {
                 if(_cache.rIndex[j] === true) continue;
@@ -480,6 +484,9 @@ define(function () {
             children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
             _cache.preHeight -= _cache.hIndexOf(j, children);
         }
+
+        _cache.showBegin = end;
+        console.log('showBegin ' + end);
 
         if(ifCheck) {
             for (var j = end - 1; j >= 0; j--) {
@@ -517,9 +524,9 @@ define(function () {
 
     return {
         onScrollInit: init,
-        onScrollStart: function(el, data) {
-            updateOnTouchStart(-data.position);
-        },
+        // onScrollStart: function(el, data) {
+        //     updateOnTouchStart(-data.position);
+        // },
         onScrollEnd: function(el, data) {
             updateOnTouchEnd(-data.endPosition);
         },

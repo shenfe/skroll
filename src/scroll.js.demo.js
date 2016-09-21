@@ -59,9 +59,10 @@ requirejs(['scroll', 'hide', 'domini', 'domock'], function(Scroll, Hide, Domini,
     if(test_native) return;
 
     window.scrollPanel = new Scroll(test_targetDom, {
-        acceleration: 4000,
+        acceleration: 3500,
         raf: !!test_requestAnimationFrame,
         scrollBarMode: 1,
+        hMode: 0,
         plugins: test_choice ? [Hide] : []
     });
 });
