@@ -117,7 +117,7 @@ define(function () {
     var childNodes = function() {
         if(_conf.usePaddingOrBlank === 0) return _list.childNodes;
         var r = _list.childNodes;
-        console.log('childNodes ' + (r.length - 2));
+        // console.log('childNodes ' + (r.length - 2));
         return Array.prototype.slice.call(r, 1, r.length - 1);
     };
 
@@ -410,10 +410,12 @@ define(function () {
         if(_cache.dir === 0) { // 向下移动
             to = begin - _conf.liveRangeOffset;
             rshow(_cache.begin, to, len, children, true); //TODO: 一直单方向移动会造成显示的元素过多
+            // show();
             // console.log('upto: ' + to);
         } else { // 向上移动
             to = begin + _conf.liveRange - 1;
             show(_cache.begin, to, len, children, true);
+            // rshow();
             // console.log('downto: ' + to);
         }
 

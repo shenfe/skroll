@@ -36,8 +36,9 @@ define(function () {
             restraint = 100, // maximum distance allowed at the same time in perpendicular direction
             allowedTime = 300, // maximum time allowed to travel that distance
             thresholdTime = 100,
-            acceleration = 3000,
-            maxSpeed = 8000,
+            acceleration = 4000,
+            maxSpeed = 3000,
+            heightLock = false,
             startTime,
             scrollPosition = 0,
             distXIntervals = [],
@@ -74,11 +75,32 @@ define(function () {
                 lastLastMoveTime: null,
                 scrollPosition: 0
             };
+
+        var _pageParentHeight = 0;
+        var pageParentHeight = function () {
+            if(_pageParentHeight === 0) updatePageParentHeight();
+            return _pageParentHeight;
+        };
+        var updatePageParentHeight = function (e) {
+            _pageParentHeight = page.parentNode.clientHeight;
+        };
+        var _pageHeight = 0;
+        var pageHeight = function () {
+            return page.clientHeight;
+        };
+        window.addEventListener('resize', updatePageParentHeight, false);
+
         var ScrollHelp = {
             updateHeights: function () {
-                heightOf.parent = heightOf.foo = page.parentNode.clientHeight; // clientHeight / offsetHeight / getBoundingClientRect ?
-                heightOf.page = page.clientHeight;
+                heightOf.parent = heightOf.foo = pageParentHeight(); // clientHeight / offsetHeight / getBoundingClientRect ?
+                heightOf.page = pageHeight();
                 heightOf.bar = heightOf.foo * heightOf.parent / heightOf.page;
+            },
+            lockPageHeight: function () {
+                page.style.height = heightOf.page + 'px';
+            },
+            unlockPageHeight: function () {
+                page.style.height = '';
             },
             getScrollBar: function () {
                 if (scrollBar) return scrollBar;
@@ -231,7 +253,7 @@ define(function () {
                     })(el, t));
                 } else {
                     ScrollHelp._setT(el, t);
-                    if (id === 'page') console.log('    setT: ' + t);
+                    // if (id === 'page') console.log('    setT: ' + t);
                 }
 
                 return tt;
@@ -276,8 +298,7 @@ define(function () {
                 };
             },
             stopTranslate: function (el) {
-                var computedStyle = window.getComputedStyle(el);
-                var t = computedStyle.getPropertyValue('transform');
+                var t = window.getComputedStyle(el).getPropertyValue('transform'); // can it be computed?
 
                 // el.style.transition = el.style.WebkitTransition = '';
 
@@ -392,9 +413,9 @@ define(function () {
         // 初始化滚动条
         if (scrollBarConf.mode !== 0) ScrollHelp.getScrollBar();
 
-        document.addEventListener('touchstart', function (e) {
-            console.log('<touchstart 0');
-        });
+        // document.addEventListener('touchstart', function (e) {
+        //     console.log('<touchstart 0');
+        // });
 
         page.addEventListener('touchstart', function (e) {
             var touchobj = e.changedTouches[0];
@@ -404,9 +425,10 @@ define(function () {
 
             startTop = scrollPosition = ScrollHelp.stopTranslate(this);
 
-            console.log('<touchstart: ' + startTop);
+            // console.log('<touchstart: ' + startTop);
 
             ScrollHelp.updateHeights();
+            if (heightLock) ScrollHelp.lockPageHeight();
 
             if (scrollBarConf.mode !== 0 && heightOf.parent && heightOf.page && heightOf.parent <
                 heightOf.page) {
@@ -460,7 +482,7 @@ define(function () {
                     heightOf.page), true);
             }
 
-            console.log(' touchmove: ' + scrollPosition);
+            // console.log(' touchmove: ' + scrollPosition);
 
             e.preventDefault(); // prevent scrolling when inside DIV
         }, false);
@@ -519,8 +541,10 @@ define(function () {
                     transBoundary: transBoundary
                 });
 
-                console.log('>scrollend: ' + curPosition);
+                // console.log('>scrollend: ' + curPosition);
             }
+
+            if (heightLock) ScrollHelp.unlockPageHeight();
 
             e.preventDefault();
         }, false);
