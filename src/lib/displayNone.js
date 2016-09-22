@@ -178,25 +178,26 @@ define(function () {
 
     var _initIndex = function (len, children) {
         var h = 0;
-        var curH, minH = 1000000;
+        var curH, minH = 1000000, min = 12;
         for (var i = 0; i < len; i++) {
             children[i].setAttribute('data-key', i);
-            curH = _conf.itemHeightFixed ? _cache.hIndexOf(i, children) : children[i].offsetHeight;
-            if(curH < minH && curH > 12) {
-                minH = curH;
-            }
             // if(_conf.mode === 0) {
+                curH = _conf.itemHeightFixed ? _cache.hIndexOf(i, children) : children[i].offsetHeight;
+                if(curH < minH && curH > min) {
+                    minH = curH;
+                }
                 _cache.pIndex[i] = h;
                 // console.log('pIndex[' + i + ']: ' + h);
                 _cache.hIndex[i] = curH;
+                h += curH;
             // }
-            h += curH;
+
             _cache.vIndex[i] = true;
             if (_conf.displayNeeded) _cache.dIndex[i] = _getStyle(children[i], 'display');
         }
         _cache.showBegin = 0;
         _cache.showEnd = len - 1;
-        _cache.minHeight = minH;
+        _cache.minHeight = (minH === 1000000 ? min : minH);
         // console.log('minItemHeight: ' + _cache.minHeight);
     };
 
