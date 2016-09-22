@@ -17,6 +17,20 @@ define(function () {
     var control = function (dom, conf) {
         var page,
             scrollBar,
+            pageScrolling = false,
+            itemHeightFixed = false,
+            _itemHeight = 0,
+            itemHeight = function() {
+                if(_itemHeight === 0) {
+                    var len = page.childNodes.length;
+                    if(filler === 2) len -= 2;
+                    if(len <= 0) return 0;
+                    _itemHeight = page.childNodes[filler === 2 ? 1 : 0].offsetHeight;
+                }
+                return _itemHeight;
+            },
+            filler = 1, // 1: padding, 2: blank
+            curScrollStartTime = 0,
             plugins,
             heightOf = {
                 page: 0,
@@ -38,7 +52,7 @@ define(function () {
             thresholdTime = 100,
             acceleration = 4000,
             maxSpeed = 6000,
-            heightLock = false,
+            heightLock = false, // lock the height of page, when touchstart or touchend; notice window.screen.height
             startTime,
             scrollPosition = 0,
             distXIntervals = [],
@@ -86,6 +100,7 @@ define(function () {
         };
         var _pageHeight = 0;
         var pageHeight = function () {
+            if(itemHeightFixed) return (filler === 2 ? (page.childNodes.length - 2) : page.childNodes.length) * itemHeight();
             return page.clientHeight;
         };
         window.addEventListener('resize', updatePageParentHeight, false);
@@ -96,11 +111,17 @@ define(function () {
                 heightOf.page = pageHeight();
                 heightOf.bar = heightOf.foo * heightOf.parent / heightOf.page;
             },
-            lockPageHeight: function () {
-                page.style.height = heightOf.page + 'px';
+            lockPageHeight: function (h) {
+                if(h > heightOf.page) {
+                    this.unlockPageHeight();
+                    return;
+                }
+                page.style.height = h + 'px';
+                page.style.overflow = 'hidden';
             },
             unlockPageHeight: function () {
                 page.style.height = '';
+                page.style.overflow = '';
             },
             getScrollBar: function () {
                 if (scrollBar) return scrollBar;
@@ -298,14 +319,20 @@ define(function () {
                 };
             },
             stopTranslate: function (el) {
-                var t = window.getComputedStyle(el).getPropertyValue('transform'); // can it be computed?
+                var t;
+                if(pageScrolling) {
+                    t = window.getComputedStyle(el).getPropertyValue('transform'); // can it be computed?
 
-                // el.style.transition = el.style.WebkitTransition = '';
-
-                el.style.transform = el.style.WebkitTransform = t;
-
-                if (t != 'none') {
-                    t = t.substring(t.lastIndexOf(', ') + 2, t.length - (t.endsWith('px)') ? 3 : 1));
+                    el.style.transform = el.style.WebkitTransform = t;
+                    if (t != 'none') {
+                        t = t.substring(t.lastIndexOf(', ') + 2, t.length - (t.endsWith('px)') ? 3 : 1));
+                    }
+                } else {
+                    t = el.style.transform;
+                    if(t == 'none') t = el.style.WebkitTransform;
+                    if (t != 'none') {
+                        t = t.substring(t.indexOf(', ') + 2, t.lastIndexOf(', '));
+                    }
                 }
 
                 if (t == 'none') {
@@ -319,8 +346,19 @@ define(function () {
         };
 
         var putPlugins = function () {
-            var ens = scrollEventQueues.names;
+            var ens = initQueues.names;
             var pl = null;
+            for (var i = 0, ilen = plugins.length; i < ilen; i++) {
+                pl = plugins[i];
+                for (var j = 0, jlen = ens.length; j < jlen; j++) {
+                    if (pl['on' + ens[j]]) {
+                        initQueues['on' + ens[j]].push(pl['on' + ens[j]]);
+                    }
+                }
+            }
+
+            ens = scrollEventQueues.names;
+            pl = null;
             for (var i = 0, ilen = plugins.length; i < ilen; i++) {
                 pl = plugins[i];
                 for (var j = 0, jlen = ens.length; j < jlen; j++) {
@@ -338,6 +376,16 @@ define(function () {
                     if (pl['onElement' + ens[j]]) {
                         elementEventQueues['on' + ens[j]].push(pl['onElement' + ens[j]]);
                     }
+                }
+            }
+        };
+
+        var initQueues = {
+            names: ['Init'],
+            onInit: [],
+            init: function(el, data) {
+                for (var i = 0, len = this.onInit.length; i < len; i++) {
+                    this.onInit[i](el, conf, data);
                 }
             }
         };
@@ -365,16 +413,10 @@ define(function () {
         };
 
         var scrollEventQueues = {
-            names: ['Init', 'Start', 'Pause', 'Move', 'End'],
-            onInit: [],
+            names: ['Start', 'Pause', 'Move', 'End'],
             onStart: [], // start a scroll, and actually pause a scroll at the same time
             onMove: [],
             onEnd: [],
-            init: function (el, data) {
-                for (var i = 0, len = this.onInit.length; i < len; i++) {
-                    this.onInit[i](el, data);
-                }
-            },
             start: function (el, data) {
                 for (var i = 0, len = this.onStart.length; i < len; i++) {
                     this.onStart[i](el, data);
@@ -400,6 +442,7 @@ define(function () {
         /*******************************************************************************/
 
         page = dom;
+        itemHeightFixed = conf.itemHeightFixed || itemHeightFixed;
         acceleration = conf.acceleration || acceleration;
         maxSpeed = conf.maxSpeed || maxSpeed;
         scrollBarConf.mode = conf.scrollBarMode || scrollBarConf.mode;
@@ -409,7 +452,7 @@ define(function () {
 
         plugins = conf.plugins;
         putPlugins();
-        scrollEventQueues.init(page);
+        initQueues.init(page);
 
         // 初始化滚动条
         if (scrollBarConf.mode !== 0) ScrollHelp.getScrollBar();
@@ -428,8 +471,9 @@ define(function () {
 
             // console.log('<touchstart: ' + startTop);
 
-            ScrollHelp.updateHeights();
-            if (heightLock) ScrollHelp.lockPageHeight();
+            // ScrollHelp.updateHeights();
+
+            if (heightLock) ScrollHelp.lockPageHeight(scrollPosition + window.screen.height * 2);
 
             if (scrollBarConf.mode !== 0 && heightOf.parent && heightOf.page && heightOf.parent <
                 heightOf.page) {
@@ -443,6 +487,8 @@ define(function () {
                 b.style.height = heightOf.parent / heightOf.page * 100 + '%';
                 ScrollHelp.stopTranslate(b);
             }
+
+            pageScrolling = false;
 
             distXIntervals = [],
             distYIntervals = [],
@@ -493,7 +539,8 @@ define(function () {
             var touchobj = e.changedTouches[0];
             totalDistX = touchobj.pageX - startX;
             totalDistY = touchobj.pageY - startY;
-            var elapsedTime = Date.now() - startTime;
+            var dateNow = Date.now();
+            var elapsedTime = dateNow - startTime;
             var scrollDir = null;
             if (elapsedTime <= allowedTime) {
                 if (Math.abs(totalDistX) >= threshold && Math.abs(totalDistY) <= restraint) {
@@ -503,7 +550,9 @@ define(function () {
                 }
             }
 
-            var endTime = Date.now();
+            pageScrolling = false;
+
+            var endTime = dateNow;
             var curPosition = scrollPosition;
             var transBoundary = ScrollHelp.getMaxTranslate('page', this);
             if (endTime - lastMoveTime < thresholdTime && heightOf.parent && heightOf.page &&
@@ -518,6 +567,12 @@ define(function () {
                     acceleration, scrollPosition, 0, transBoundary);
                 curPosition = transResult.position;
 
+                pageScrolling = true;
+                curScrollStartTime = dateNow;
+                window.setTimeout(function (thisDateNow) { return function() {
+                    if(curScrollStartTime <= thisDateNow) pageScrolling = false;
+                };}(dateNow), transResult.time * 1000);
+
                 if (scrollBarConf.mode !== 0) {
                     var b = ScrollHelp.getScrollBar();
                     ScrollHelp._setTransitionClass(b, false, transResult.transition);
@@ -529,6 +584,8 @@ define(function () {
                         }, transResult.time * 1000 + scrollBarConf.hideDelay);
                     }
                 }
+
+                if (heightLock) ScrollHelp.lockPageHeight(scrollPosition + window.screen.height * 2);
 
                 scrollEventQueues.end(this, {
                     scrollDir: scrollDir,
@@ -545,8 +602,6 @@ define(function () {
 
                 // console.log('>scrollend: ' + curPosition);
             }
-
-            if (heightLock) ScrollHelp.unlockPageHeight();
 
             e.preventDefault();
         }, false);

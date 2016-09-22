@@ -13,32 +13,19 @@ requirejs.config({
         hide: './lib/' + (!getUrlHash() ? 'displayNone' : 'visibilityHidden'),
         renode: './lib/renode',
         domini: './lib/domini',
-        domock: './lib/domock'
+        domock: './lib/domock',
+        test_content: './test/contentGenerator'
     }
 });
 
-requirejs(['scroll', 'hide', 'domini', 'domock'], function(Scroll, Hide, Domini, Domock) {
+requirejs(['scroll', 'hide', 'domini', 'domock', 'test_content'], function(Scroll, Hide, Domini, Domock, TestContent) {
     var test_listLength = parseInt(getUrlParameter('size') || '1000', 10);
     var test_targetDom = document.getElementById('div1');
     var test_method = getUrlParameter('method'),
         test_requestAnimationFrame = getUrlParameter('raf'),
         test_content = getUrlParameter('content');
-    var test_generateContent1 = function(div, levels) {
-        for (var i = 0; i < levels[0]; i++) {
-            var child = document.createElement('div');
-            child.className = 'test-div';
-            child.innerHTML = i;
-            div.appendChild(child);
-        }
-    };
-    var test_generateContent2 = function(div, levels) {
-        Domock(div, levels);
-    };
 
-    if(test_content == 1)
-        test_generateContent1(test_targetDom, [test_listLength]);
-    else
-        test_generateContent2(test_targetDom, [test_listLength, 4, 2, 2]);
+    TestContent[test_content](test_targetDom, [test_listLength, 4, 2, 2]);
 
     if(test_method === 'native') {
         document.title = '原生滚动';
@@ -58,10 +45,11 @@ requirejs(['scroll', 'hide', 'domini', 'domock'], function(Scroll, Hide, Domini,
 
         window.scrollPanel = new Scroll(test_targetDom, {
             acceleration: 3000,
-            maxSpeed: 6000,
+            maxSpeed: 3000,
+            itemHeightFixed: false,
+            filler: 2, // 1: padding, 2: blank
             raf: !!test_requestAnimationFrame,
             scrollBarMode: 1,
-            hMode: 0,
             plugins: [Hide]
         });
     }

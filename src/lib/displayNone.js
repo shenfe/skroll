@@ -5,6 +5,8 @@ define(function () {
         _conf = {
             hideAsInit: true,
             mode: 1, // 1: active, to get element pos in time; 0: passive, to keep element pos and wait for changes to come.
+            itemHeightFixed: false, // if each item is of the same height and won't change.
+            _itemHeight: 0,
             _liveRangeOffset: 0,
             get liveRangeOffset() {
                 if(this._liveRangeOffset !== 0) return this._liveRangeOffset;
@@ -27,7 +29,7 @@ define(function () {
             displayNeeded: false,
             ifRequestAnimationFrame: false,
             screenMaxHeight: window.screen.height,
-            usePaddingOrBlank: 0 // 0: padding, 1: blank
+            usePaddingOrBlank: 1 // 0: padding, 1: blank
         },
         _cache = {
             touchStartLock: false,
@@ -40,6 +42,13 @@ define(function () {
             dir: 0, // 0: down, 1: up
             hIndex: [], // height
             hIndexOf: function(i, children, cache) {
+                if(_conf.itemHeightFixed) {
+                    if(_conf._itemHeight === 0) {
+                        _conf._itemHeight = children[i].offsetHeight;
+                    }
+                    this.hIndex[i] = _conf._itemHeight;
+                    return _conf._itemHeight;
+                }
                 if(cache === true) return this.hIndex[i];
                 if(_conf.mode === 0) return this.hIndex[i];
                 if(i < this.pSafeTo) return this.hIndex[i];
@@ -50,6 +59,15 @@ define(function () {
             },
             pIndex: [], // position
             pIndexOf: function(i, len, children, dir, cache) { //TODO: RECONSIDER
+                if(_conf.itemHeightFixed) {
+                    var confItemHeight = _conf._itemHeight;
+                    if(confItemHeight === 0) {
+                        confItemHeight = _conf._itemHeight = children[i].offsetHeight;
+                    }
+                    confItemHeight *= (i - 1);
+                    this.pIndex[i] = confItemHeight;
+                    return confItemHeight;
+                }
                 if(cache === true) return this.pIndex[i];
                 if(_conf.mode === 0) return this.pIndex[i];
                 if(i === 0) return 0;
@@ -145,7 +163,7 @@ define(function () {
         _cache.preHeight = 0;
         _cache.subHeight = 0;
         if(_conf.usePaddingOrBlank === 1) {
-            var blankStyle = 'width:100%;height:0;padding:0;border:0;margin:0;';
+            var blankStyle = 'width:0;height:0;padding:0;border:0;margin:0;';
             _preBlank = document.createElement('div');
             _preBlank.setAttribute('style', blankStyle);
             _list.insertBefore(_preBlank, _list.childNodes[0]);
@@ -163,7 +181,7 @@ define(function () {
         var curH, minH = 1000000;
         for (var i = 0; i < len; i++) {
             children[i].setAttribute('data-key', i);
-            curH = children[i].offsetHeight;
+            curH = _conf.itemHeightFixed ? _cache.hIndexOf(i, children) : children[i].offsetHeight;
             if(curH < minH && curH > 12) {
                 minH = curH;
             }
@@ -182,7 +200,10 @@ define(function () {
         // console.log('minItemHeight: ' + _cache.minHeight);
     };
 
-    var init = function (list) {
+    var init = function (list, conf) {
+        console.log(conf);
+        _conf.itemHeightFixed = conf.itemHeightFixed || _conf.itemHeightFixed;
+        _conf.usePaddingOrBlank = (conf.filler === 2 ? 1 : 0);
         var children = list.childNodes;
         if (!children || !children.length) {
             return;
@@ -348,7 +369,7 @@ define(function () {
             for(var i = olen; i < nlen; i++) {
                 if(_cache.rIndex[i] === true) continue;
                 children[i].setAttribute('data-key', i);
-                curH = children[i].offsetHeight;
+                curH = _conf.itemHeightFixed ? _cache.hIndexOf(i, children) : children[i].offsetHeight;
                 // if(_conf.mode === 0) {
                     _cache.pIndex[i] = h;
                     _cache.hIndex[i] = curH;
@@ -537,7 +558,7 @@ define(function () {
 
     var updateElement = function (el, offset) {
         // console.log('updateElement');
-        if(_conf.mode === 0) return;
+        if(_conf.mode === 0 || _conf.itemHeightFixed) return;
 
         if(typeof el === 'number') {
             // console.log('startY: ' + el);
@@ -560,7 +581,7 @@ define(function () {
     };
 
     return {
-        onScrollInit: init,
+        onInit: init,
         onScrollStart: function(el, data) {
             updateElement(data.touchY, -data.position);
             // updateOnTouchStart(-data.position);
