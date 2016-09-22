@@ -449,7 +449,7 @@ define(function () {
         }
 
         _cache.showEnd = end;
-        console.log('showEnd ' + end);
+        // console.log('showEnd ' + end);
 
         if(ifCheck) {
             for (var j = end + 1; j < len; j++) {
@@ -488,7 +488,7 @@ define(function () {
         }
 
         _cache.showBegin = end;
-        console.log('showBegin ' + end);
+        // console.log('showBegin ' + end);
 
         if(ifCheck) {
             for (var j = end - 1; j >= 0; j--) {
@@ -508,27 +508,63 @@ define(function () {
         _cache.updatePreHeight();
     };
 
-    var updateElement = function (el) {
+    var getTouchedElement = function(touchY, offset) {
+        var begin = _getBeginClosed();
+        // console.log('current begin: ' + begin);
+        var bh = _cache.pIndex[begin];
+        var r = 0;
+        offset += touchY;
+        if(bh < offset) {
+            for(var i = begin + 1; i < _cache.listLen; i++) {
+                if(_cache.pIndex[i] > offset) {
+                    r = i - 1;
+                    break;
+                }
+            }
+        } else if(bh === offset) {
+            r = begin;
+        } else {
+            for(var i = begin - 1; i >= 0; i--) {
+                if(_cache.pIndex[i] <= offset) {
+                    r = i;
+                    break;
+                }
+            }
+        }
+        // console.log('current touch: ' + r);
+        return childNodes()[r];
+    };
+
+    var updateElement = function (el, offset) {
         // console.log('updateElement');
-        // if(_conf.mode === 0) {
-            var idx = parseInt(el.getAttribute('data-key'));
-            var newH = el.offsetHeight;
-            var d = newH - _cache.hIndex[idx];
+        if(_conf.mode === 0) return;
+
+        if(typeof el === 'number') {
+            // console.log('startY: ' + el);
+            // console.log('offset: ' + offset);
+            el = getTouchedElement(el, offset);
+        }
+
+        var idx = parseInt(el.getAttribute('data-key'));
+        var newH = el.offsetHeight;
+        var d = newH - _cache.hIndex[idx];
+        if(d !== 0) {
             for(var i = idx, len = _cache.hIndex.length; i < len; i++) {
                 if(_cache.rIndex[i] === true) continue;
                 _cache.hIndex[i] += d;
                 _cache.pIndex[i] += d;
             }
-        // }
 
-        updateByForce();
+            updateByForce();
+        }
     };
 
     return {
         onScrollInit: init,
-        // onScrollStart: function(el, data) {
-        //     updateOnTouchStart(-data.position);
-        // },
+        onScrollStart: function(el, data) {
+            updateElement(data.touchY, -data.position);
+            // updateOnTouchStart(-data.position);
+        },
         onScrollEnd: function(el, data) {
             updateOnTouchEnd(-data.endPosition);
         },

@@ -37,7 +37,7 @@ define(function () {
             allowedTime = 300, // maximum time allowed to travel that distance
             thresholdTime = 100,
             acceleration = 4000,
-            maxSpeed = 3000,
+            maxSpeed = 6000,
             heightLock = false,
             startTime,
             scrollPosition = 0,
@@ -401,6 +401,7 @@ define(function () {
 
         page = dom;
         acceleration = conf.acceleration || acceleration;
+        maxSpeed = conf.maxSpeed || maxSpeed;
         scrollBarConf.mode = conf.scrollBarMode || scrollBarConf.mode;
         ifRequestAnimationFrame = !!conf.raf;
 
@@ -444,11 +445,12 @@ define(function () {
             }
 
             distXIntervals = [],
-                distYIntervals = [],
-                timeIntervals = [];
+            distYIntervals = [],
+            timeIntervals = [];
 
             scrollEventQueues.start(this, {
-                position: startTop
+                position: startTop,
+                touchY: startY
             });
 
             e.preventDefault();

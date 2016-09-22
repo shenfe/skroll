@@ -20,8 +20,7 @@ requirejs.config({
 requirejs(['scroll', 'hide', 'domini', 'domock'], function(Scroll, Hide, Domini, Domock) {
     var test_listLength = parseInt(getUrlParameter('size') || '1000', 10);
     var test_targetDom = document.getElementById('div1');
-    var test_native = getUrlParameter('native'),
-        test_choice = getUrlParameter('hide'),
+    var test_method = getUrlParameter('method'),
         test_requestAnimationFrame = getUrlParameter('raf'),
         test_content = getUrlParameter('content');
     var test_generateContent1 = function(div, levels) {
@@ -36,33 +35,38 @@ requirejs(['scroll', 'hide', 'domini', 'domock'], function(Scroll, Hide, Domini,
         Domock(div, levels);
     };
 
-    if(test_native) {
-        document.title = '原生滚动';
-    } else {
-        if(!test_choice) {
-            document.title = '模拟滚动';
-        } else if(!getUrlHash()) {
-            document.title = '模拟滚动-display:none';
-        } else {
-            document.title = '模拟滚动-visibility:hidden';
-        }
-    }
-    if(test_requestAnimationFrame) {
-        document.title += '-raf';
-    }
-
     if(test_content == 1)
         test_generateContent1(test_targetDom, [test_listLength]);
     else
         test_generateContent2(test_targetDom, [test_listLength, 4, 2, 2]);
 
-    if(test_native) return;
+    if(test_method === 'native') {
+        document.title = '原生滚动';
+    } else if(test_method === 'iscroll') {
+        document.title = 'iscroll滚动';
 
-    window.scrollPanel = new Scroll(test_targetDom, {
-        acceleration: 3000,
-        raf: !!test_requestAnimationFrame,
-        scrollBarMode: 1,
-        hMode: 0,
-        plugins: test_choice ? [Hide] : []
-    });
+        // function loaded() {
+            window.scrollPanel = new IScroll(test_targetDom.parentNode, {
+                scrollbars: true,
+                bounce: false
+            });
+            console.log('iscroll');
+        // }
+        // window.onload = loaded;
+    } else {
+        document.title = '模拟滚动';
+
+        window.scrollPanel = new Scroll(test_targetDom, {
+            acceleration: 3000,
+            maxSpeed: 6000,
+            raf: !!test_requestAnimationFrame,
+            scrollBarMode: 1,
+            hMode: 0,
+            plugins: [Hide]
+        });
+    }
+
+    if(test_requestAnimationFrame) {
+        document.title += '-raf';
+    }
 });
