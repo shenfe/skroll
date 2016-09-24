@@ -60,7 +60,7 @@ define(function () {
             timeIntervals = [],
             scrollBarConf = {
                 draggable: false,
-                minHeight: '10px',
+                minHeight: 8,
                 hideDelay: 1000,
                 mode: 0 // 0: hidden, 1: autoShow, 2: alwaysShow
             },
@@ -109,7 +109,7 @@ define(function () {
             updateHeights: function () {
                 heightOf.parent = heightOf.foo = pageParentHeight(); // clientHeight / offsetHeight / getBoundingClientRect ?
                 heightOf.page = pageHeight();
-                heightOf.bar = heightOf.foo * heightOf.parent / heightOf.page;
+                heightOf.bar = Math.max(heightOf.foo * heightOf.parent / heightOf.page, scrollBarConf.minHeight);
             },
             lockPageHeight: function (h) {
                 if(h > heightOf.page) {
@@ -133,16 +133,22 @@ define(function () {
                     b = document.createElement('div');
                     f.className = 'scroll-foo';
                     f.setAttribute('style',
-                        'position: absolute;top: 0;right: 0;width: 8px;height: 100%;background-color: #ccc;z-index: 100;opacity: 0.8;' +
-                        (scrollBarConf.mode === 1 ? 'display: none;' : ''));
+                        'position: absolute;top: 0;right: 0;width: 8px;height: 100%;background-color: rgba(204, 204, 204, 0.6);z-index: 100;\
+                        -webkit-transition: opacity 0.3s ease;\
+                        -moz-transition: opacity 0.3s ease;\
+                        -ms-transition: opacity 0.3s ease;\
+                        -o-transition: opacity 0.3s ease;\
+                        transition: opacity 0.3s ease;' +
+                        (scrollBarConf.mode === 1 ? 'opacity: 0;display: none;' : ''));
                     b.setAttribute('style',
-                        'position: relative;top: 0;right: 0;background-color: #666;width: 100%;height: 0;'
+                        'position: relative;top: 0;right: 0;background-color: #666;width: 100%;height: 0;border-radius: 4px;'
                     );
                     f.appendChild(b);
                     p.appendChild(f);
 
                     ScrollHelp.updateHeights();
-                    b.style.height = heightOf.parent / heightOf.page * 100 + '%';
+
+                    b.style.height = heightOf.bar + 'px';
 
                     b.addEventListener('touchstart', function (e) {
                         if (!scrollBarConf.draggable) return;
@@ -159,6 +165,7 @@ define(function () {
 
                         if (scrollBarConf.mode === 1) {
                             this.parentNode.style.display = 'block';
+                            this.parentNode.style.opacity = '1';
                             if (scrollBarData.hideTimeout != null) {
                                 window.clearTimeout(scrollBarData.hideTimeout);
                             }
@@ -188,8 +195,8 @@ define(function () {
                         scrollBarData.lastLastMoveTime = scrollBarData.lastMoveTime;
                         scrollBarData.lastMoveTime = Date.now();
 
-                        ScrollHelp.setTranslate('page', page, -heightOf.page * (newY /
-                            heightOf.foo));
+                        ScrollHelp.setTranslate('page', page, -(heightOf.page - heightOf.parent) * (newY /
+                            (heightOf.foo - heightOf.bar)));
 
                         e.preventDefault(); // prevent scrolling when inside DIV
                     }, false);
@@ -198,7 +205,8 @@ define(function () {
 
                         if (scrollBarConf.mode === 1) {
                             scrollBarData.hideTimeout = window.setTimeout(function () {
-                                this.parentNode.style.display = 'none';
+                                // this.parentNode.style.display = 'none';
+                                this.parentNode.style.opacity = '0';
                             }.bind(this), scrollBarConf.hideDelay);
                         }
                         e.preventDefault();
@@ -480,11 +488,12 @@ define(function () {
                 var b = ScrollHelp.getScrollBar();
                 if (scrollBarConf.mode === 1) {
                     b.parentNode.style.display = 'block';
+                    b.parentNode.style.opacity = '1';
                     if (scrollBarData.hideTimeout != null) {
                         window.clearTimeout(scrollBarData.hideTimeout);
                     }
                 }
-                b.style.height = heightOf.parent / heightOf.page * 100 + '%';
+                b.style.height = heightOf.bar + 'px';
                 scrollBarData.scrollPosition = ScrollHelp.stopTranslate(b, scrollBarData.scrollPosition);
             }
 
@@ -526,8 +535,8 @@ define(function () {
             timeIntervals.push(lastMoveTime - lastLastMoveTime);
 
             if (scrollBarConf.mode !== 0 && heightOf.parent && heightOf.page) {
-                ScrollHelp.setTranslate('bar', ScrollHelp.getScrollBar(), -heightOf.foo * (newY /
-                    heightOf.page), true);
+                ScrollHelp.setTranslate('bar', ScrollHelp.getScrollBar(), -(heightOf.foo - heightOf.bar) * (newY /
+                    (heightOf.page - heightOf.parent)), true);
             }
 
             // console.log(' touchmove: ' + scrollPosition);
@@ -577,11 +586,13 @@ define(function () {
                 if (scrollBarConf.mode !== 0) {
                     var b = ScrollHelp.getScrollBar();
                     ScrollHelp._setTransitionClass(b, false, transResult.transition);
-                    ScrollHelp.setTranslate('bar', b, -curPosition / heightOf.page * heightOf.foo,
+                    ScrollHelp.setTranslate('bar', b, -(heightOf.foo - heightOf.bar) * (curPosition /
+                        (heightOf.page - heightOf.parent)),
                         true);
                     if (scrollBarConf.mode === 1) {
                         scrollBarData.hideTimeout = window.setTimeout(function () {
-                            b.parentNode.style.display = 'none';
+                            // b.parentNode.style.display = 'none';
+                            b.parentNode.style.opacity = '0';
                         }, transResult.time * 1000 + scrollBarConf.hideDelay);
                     }
                 }
