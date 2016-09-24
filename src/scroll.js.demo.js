@@ -49,7 +49,7 @@ requirejs(['scroll', 'hide', 'domini', 'domock', 'test_content'], function(Scrol
             acceleration: 3000,
             maxSpeed: 3000,
             itemHeightFixed: !!test_heightFixed,
-            filler: 2, // 1: padding, 2: blank
+            filler: 1, // 1: padding, 2: blank; VisibilityHidden plugin must use padding.
             raf: !!test_requestAnimationFrame,
             scrollBarMode: 1,
             plugins: test_hide == 'false' ? [] : [Hide]

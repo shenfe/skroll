@@ -29,7 +29,7 @@ define(function () {
                 }
                 return _itemHeight;
             },
-            filler = 1, // 1: padding, 2: blank
+            filler = conf.filler || 1, // 1: padding, 2: blank
             curScrollStartTime = 0,
             plugins,
             heightOf = {
@@ -153,7 +153,7 @@ define(function () {
                         scrollBarData.startTime = scrollBarData.lastLastMoveTime = scrollBarData.lastMoveTime = Date.now();
                         scrollBarData.startTop = scrollBarData.scrollPosition = ScrollHelp.stopTranslate(this, scrollBarData.scrollPosition);
 
-                        ScrollHelp.stopTranslate(page, scrollPosition);
+                        scrollPosition = ScrollHelp.stopTranslate(page, scrollPosition);
 
                         ScrollHelp.updateHeights();
 
@@ -324,13 +324,15 @@ define(function () {
                         t = t.substring(t.lastIndexOf(', ') + 2, t.length - (t.endsWith('px)') ? 3 : 1));
                     }
                 } else {
-                    // t = el.style.transform;
-                    // if(t == 'none') t = el.style.WebkitTransform;
-                    // if (t != 'none') {
-                    //     t = t.substring(t.indexOf(', ') + 2, t.lastIndexOf(', '));
-                    // }
-
-                    t = opos;
+                    if(opos == null) {
+                        t = el.style.transform;
+                        if(t == 'none') t = el.style.WebkitTransform;
+                        if (t != 'none') {
+                            t = t.substring(t.indexOf(', ') + 2, t.lastIndexOf(', '));
+                        }
+                    } else {
+                        t = opos;
+                    }
                 }
 
                 if (t == 'none') {
@@ -469,7 +471,7 @@ define(function () {
 
             // console.log('<touchstart: ' + startTop);
 
-            // ScrollHelp.updateHeights();
+            ScrollHelp.updateHeights(); // Is this necessary?
 
             if (heightLock) ScrollHelp.lockPageHeight(scrollPosition + window.screen.height * 2);
 
@@ -483,7 +485,7 @@ define(function () {
                     }
                 }
                 b.style.height = heightOf.parent / heightOf.page * 100 + '%';
-                ScrollHelp.stopTranslate(b, scrollBarData.scrollPosition);
+                scrollBarData.scrollPosition = ScrollHelp.stopTranslate(b, scrollBarData.scrollPosition);
             }
 
             pageScrolling = false;
@@ -563,7 +565,8 @@ define(function () {
 
                 var transResult = ScrollHelp.updateTransition('page', this, initialSpeed,
                     acceleration, scrollPosition, 0, transBoundary);
-                curPosition = transResult.position;
+                curPosition = scrollPosition = transResult.position;
+                scrollBarData.scrollPosition = -curPosition / heightOf.page * heightOf.foo;
 
                 pageScrolling = true;
                 curScrollStartTime = dateNow;
