@@ -24,6 +24,7 @@ requirejs(['scroll', 'hide', 'domini', 'domock', 'test_content'], function(Scrol
     var test_method = getUrlParameter('method'),
         test_requestAnimationFrame = getUrlParameter('raf'),
         test_content = getUrlParameter('content'),
+        test_hide = getUrlParameter('hide'),
         test_heightFixed = getUrlParameter('height');
 
     TestContent[test_content](test_targetDom, [test_listLength, 4, 2, 2]);
@@ -51,7 +52,7 @@ requirejs(['scroll', 'hide', 'domini', 'domock', 'test_content'], function(Scrol
             filler: 2, // 1: padding, 2: blank
             raf: !!test_requestAnimationFrame,
             scrollBarMode: 1,
-            plugins: [Hide]
+            plugins: test_hide == 'false' ? [] : [Hide]
         });
     }
 

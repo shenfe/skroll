@@ -148,16 +148,12 @@ define(function () {
                         if (!scrollBarConf.draggable) return;
 
                         var touchobj = e.changedTouches[0];
-                        scrollBarData.thenX = scrollBarData.nowX = scrollBarData.startX =
-                            touchobj.pageX;
-                        scrollBarData.thenY = scrollBarData.nowY = scrollBarData.startY =
-                            touchobj.pageY;
-                        scrollBarData.startTime = scrollBarData.lastLastMoveTime =
-                            scrollBarData.lastMoveTime = Date.now();
-                        scrollBarData.startTop = scrollBarData.scrollPosition = ScrollHelp.stopTranslate(
-                            this);
+                        scrollBarData.thenX = scrollBarData.nowX = scrollBarData.startX = touchobj.pageX;
+                        scrollBarData.thenY = scrollBarData.nowY = scrollBarData.startY = touchobj.pageY;
+                        scrollBarData.startTime = scrollBarData.lastLastMoveTime = scrollBarData.lastMoveTime = Date.now();
+                        scrollBarData.startTop = scrollBarData.scrollPosition = ScrollHelp.stopTranslate(this, scrollBarData.scrollPosition);
 
-                        ScrollHelp.stopTranslate(page);
+                        ScrollHelp.stopTranslate(page, scrollPosition);
 
                         ScrollHelp.updateHeights();
 
@@ -318,7 +314,7 @@ define(function () {
                     transition: t
                 };
             },
-            stopTranslate: function (el) {
+            stopTranslate: function (el, opos) {
                 var t;
                 if(pageScrolling) {
                     t = window.getComputedStyle(el).getPropertyValue('transform'); // can it be computed?
@@ -328,11 +324,13 @@ define(function () {
                         t = t.substring(t.lastIndexOf(', ') + 2, t.length - (t.endsWith('px)') ? 3 : 1));
                     }
                 } else {
-                    t = el.style.transform;
-                    if(t == 'none') t = el.style.WebkitTransform;
-                    if (t != 'none') {
-                        t = t.substring(t.indexOf(', ') + 2, t.lastIndexOf(', '));
-                    }
+                    // t = el.style.transform;
+                    // if(t == 'none') t = el.style.WebkitTransform;
+                    // if (t != 'none') {
+                    //     t = t.substring(t.indexOf(', ') + 2, t.lastIndexOf(', '));
+                    // }
+
+                    t = opos;
                 }
 
                 if (t == 'none') {
@@ -467,7 +465,7 @@ define(function () {
             thenY = nowY = startY = touchobj.pageY;
             startTime = lastLastMoveTime = lastMoveTime = Date.now();
 
-            startTop = scrollPosition = ScrollHelp.stopTranslate(this);
+            startTop = scrollPosition = ScrollHelp.stopTranslate(this, scrollPosition);
 
             // console.log('<touchstart: ' + startTop);
 
@@ -485,7 +483,7 @@ define(function () {
                     }
                 }
                 b.style.height = heightOf.parent / heightOf.page * 100 + '%';
-                ScrollHelp.stopTranslate(b);
+                ScrollHelp.stopTranslate(b, scrollBarData.scrollPosition);
             }
 
             pageScrolling = false;
