@@ -51,9 +51,11 @@ define(function () {
             allowedTime = 300, // maximum time allowed to travel that distance
             thresholdTime = 100,
             acceleration = 4000,
+            initialSpeed,
+            initialPosition,
             maxSpeed = 6000,
             heightLock = false, // lock the height of page, when touchstart or touchend; notice window.screen.height
-            startTime,
+            startTime, endTime,
             scrollPosition = 0,
             distXIntervals = [],
             distYIntervals = [],
@@ -325,15 +327,19 @@ define(function () {
             stopTranslate: function (el, opos) {
                 var t;
                 if(pageScrolling) {
-                    t = window.getComputedStyle(el).getPropertyValue('transform'); // can it be computed?
+                    // t = window.getComputedStyle(el).getPropertyValue('transform'); // can it be computed?
+                    var dt = (Date.now() - endTime) / 1000;
+                    t = initialPosition + (initialSpeed * dt + acceleration * dt * dt / 2);
 
-                    el.style.transform = el.style.WebkitTransform = t;
-                    if (t != 'none') {
-                        t = t.substring(t.lastIndexOf(', ') + 2, t.length - (t.endsWith('px)') ? 3 : 1));
-                    }
+                    console.log(t);
+                    el.style.transform = el.style.WebkitTransform = 'translate3d(0,' + t + 'px,0)';
+                    // if (t != 'none') {
+                    //     t = t.substring(t.lastIndexOf(', ') + 2, t.length - (t.endsWith('px)') ? 3 : 1));
+                    // }
                 } else {
                     if(opos == null) {
                         t = el.style.transform;
+                        console.log(t);
                         if(t == 'none') t = el.style.WebkitTransform;
                         if (t != 'none') {
                             t = t.substring(t.indexOf(', ') + 2, t.lastIndexOf(', '));
@@ -561,12 +567,13 @@ define(function () {
 
             pageScrolling = false;
 
-            var endTime = dateNow;
+            endTime = dateNow;
             var curPosition = scrollPosition;
+            initialPosition = scrollPosition;
             var transBoundary = ScrollHelp.getMaxTranslate('page', this);
             if (endTime - lastMoveTime < thresholdTime && heightOf.parent && heightOf.page &&
                 heightOf.parent < heightOf.page) {
-                var initialSpeed = 1000 * ScrollHelp.calSpeed(distYIntervals, timeIntervals,
+                initialSpeed = 1000 * ScrollHelp.calSpeed(distYIntervals, timeIntervals,
                     totalDistY, elapsedTime);
                 if (Math.abs(initialSpeed) > maxSpeed) {
                     initialSpeed = (initialSpeed < 0 ? -maxSpeed : maxSpeed);

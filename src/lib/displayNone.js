@@ -129,9 +129,6 @@ define(function () {
             minHeight: 1000000 // minimum height of a child node
         };
 
-    window._conf = _conf;
-    window._cache = _cache;
-
     var childNodes = function() {
         if(_conf.usePaddingOrBlank === 0) return _list.childNodes;
         var r = _list.childNodes;
