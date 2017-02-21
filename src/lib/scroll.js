@@ -159,7 +159,7 @@ define(function () {
                         scrollBarData.thenX = scrollBarData.nowX = scrollBarData.startX = touchobj.pageX;
                         scrollBarData.thenY = scrollBarData.nowY = scrollBarData.startY = touchobj.pageY;
                         scrollBarData.startTime = scrollBarData.lastLastMoveTime = scrollBarData.lastMoveTime = Date.now();
-                        scrollBarData.startTop = scrollBarData.scrollPosition = ScrollHelp.stopTranslate(this, scrollBarData.scrollPosition);
+                        scrollBarData.startTop = scrollBarData.scrollPosition = ScrollHelp.stopTranslate(this, scrollBarData.scrollPosition, 'bar');
 
                         scrollPosition = ScrollHelp.stopTranslate(page, scrollPosition);
 
@@ -324,18 +324,22 @@ define(function () {
                     transition: t
                 };
             },
-            stopTranslate: function (el, opos) {
+            stopTranslate: function (el, opos, isScrollBar) {
                 var t;
                 if(pageScrolling) {
-                    // t = window.getComputedStyle(el).getPropertyValue('transform'); // can it be computed?
-                    var dt = (Date.now() - endTime) / 1000;
-                    t = initialPosition + (initialSpeed * dt + acceleration * dt * dt / 2);
-
-                    console.log(t);
-                    el.style.transform = el.style.WebkitTransform = 'translate3d(0,' + t + 'px,0)';
-                    // if (t != 'none') {
-                    //     t = t.substring(t.lastIndexOf(', ') + 2, t.length - (t.endsWith('px)') ? 3 : 1));
-                    // }
+                    if (isScrollBar) {
+                    // if (true) {
+                        t = window.getComputedStyle(el).getPropertyValue('transform'); // can it be computed?
+                        el.style.transform = el.style.WebkitTransform = t;
+                        if (t && t != 'none') {
+                            t = t.substring(t.lastIndexOf(', ') + 2, t.length - (t.endsWith('px)') ? 3 : 1));
+                        }
+                    } else {
+                        var dt = (startTime - endTime) / 1000;
+                        t = initialPosition + (initialSpeed * dt + (initialSpeed > 0 ? -1 : 1) * acceleration * dt * dt / 2);
+                        // console.log(initialPosition, initialSpeed, (initialSpeed > 0 ? -1 : 1) * acceleration, dt, t);
+                        el.style.transform = el.style.WebkitTransform = 'translate3d(0,' + t + 'px,0)';
+                    }
                 } else {
                     if(opos == null) {
                         t = el.style.transform;
@@ -349,7 +353,7 @@ define(function () {
                     }
                 }
 
-                if (t == 'none') {
+                if (!t || t == 'none') {
                     t = 0;
                 }
 
@@ -500,7 +504,7 @@ define(function () {
                     }
                 }
                 b.style.height = heightOf.bar + 'px';
-                scrollBarData.scrollPosition = ScrollHelp.stopTranslate(b, scrollBarData.scrollPosition);
+                scrollBarData.scrollPosition = ScrollHelp.stopTranslate(b, scrollBarData.scrollPosition, 'bar');
             }
 
             pageScrolling = false;
