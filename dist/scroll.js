@@ -1389,9 +1389,9 @@ var control = function (dom, conf) {
 
     }();
 
-
     var resizeObserve = function (el) {
-        if (itemHeightFixed) return;
+        var ifObserveChild = false;
+        if (!ifObserveChild || itemHeightFixed) return;
 
         /* MutationObserver way */
         if ('MutationObserver' in window) {
