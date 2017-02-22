@@ -2,15 +2,28 @@
 
 手动实现适用于移动端的滚动。
 
+# 使用方式
+
+```js
+// <div style="position:relative;overflow:hidden;">
+//     <div id="target" style="position:relative;left:0;"></div>
+// </div>
+new Scroll(document.getElementById('target'), {
+    acceleration: 2000,     // deceleration of the sliding target in fact
+    maxSpeed: 4000,         // maximum speed of the target
+    itemHeightFixed: false, // false (default): no matter what children are like; true: optimized if the target's each child is of a fixed height
+    scrollBarMode: 1        // 0: hidden; 1 (default): auto; 1: visible
+});
+```
+
 # Test
 
-## 模拟滚动不同隐藏方式间对比
+## 自动隐藏与否对比
 
 | 方式 | 查看链接 |
 | :---: | :---: |
-| display none | `scroll.js.html?size=1000&content=1` |
-| visibility hidden | `scroll.js.html?size=1000&content=1#1` |
-| 无 | `scroll.js.html?size=1000&content=1&hide=false` |
+| 自动隐藏 | `scroll.js.html?size=1000&content=1` |
+| 不隐藏 | `scroll.js.html?size=1000&content=1&hide=false` |
 
 ## 不同滚动对比
 

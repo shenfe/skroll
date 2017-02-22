@@ -15,6 +15,7 @@ define(function () {
         };
     }
     var control = function (dom, conf) {
+        if (!conf) conf = {};
         var page,
             scrollBar,
             pageScrolling = false,
@@ -64,7 +65,7 @@ define(function () {
                 draggable: false,
                 minHeight: 8,
                 hideDelay: 1000,
-                mode: 0 // 0: hidden, 1: autoShow, 2: alwaysShow
+                mode: 1 // 0: hidden, 1: autoShow, 2: alwaysShow
             },
             ifRequestAnimationFrame,
             requestAnimationFrame = window.requestAnimationFrame ||

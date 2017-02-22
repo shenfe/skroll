@@ -1,0 +1,25 @@
+{
+  "name": "scroll",
+  "version": "1.0.0",
+  "description": "Make a list-like element scroll instead of the native way.scrolling behavior of Web browser.",
+  "main": "./dist/scroll.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shenfe/Scroll.js"
+  },
+  "keywords": [
+    "scroll"
+  ],
+  "author": "keshen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shenfe/Scroll.js/issues"
+  },
+  "homepage": "https://github.com/shenfe/Scroll.js"
+}
