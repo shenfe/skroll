@@ -46,10 +46,10 @@ requirejs(['scroll', 'hide', 'domini', 'domock', 'test_content'], function(Scrol
         document.title = '模拟滚动';
 
         window.scrollPanel = new Scroll(test_targetDom, {
-            acceleration: 3000,
-            maxSpeed: 3000,
+            acceleration: 2000,
+            maxSpeed: 4000,
             itemHeightFixed: !!test_heightFixed,
-            filler: 2, // 1: padding, 2: blank; VisibilityHidden plugin must use padding.
+            filler: 1, // 1: padding, 2: blank; VisibilityHidden plugin must use padding.
             raf: !!test_requestAnimationFrame,
             scrollBarMode: 1,
             plugins: test_hide == 'false' ? [] : [Hide]

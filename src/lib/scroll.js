@@ -4,12 +4,12 @@
  * If something needs to be inputted, open a dialog.
  */
 define(function () {
-    if (typeof String.prototype.startsWith != 'function') {
+    if (typeof String.prototype.startsWith !== 'function') {
         String.prototype.startsWith = function (prefix) {
             return this.slice(0, prefix.length) === prefix;
         };
     }
-    if (typeof String.prototype.endsWith != 'function') {
+    if (typeof String.prototype.endsWith !== 'function') {
         String.prototype.endsWith = function (suffix) {
             return this.indexOf(suffix, this.length - suffix.length) !== -1;
         };
@@ -143,7 +143,7 @@ define(function () {
                         transition: opacity 0.3s ease;' +
                         (scrollBarConf.mode === 1 ? 'opacity: 0;display: none;' : ''));
                     b.setAttribute('style',
-                        'position: relative;top: 0;right: 0;background-color: #666;width: 100%;height: 0;border-radius: 4px;'
+                        'position: relative;top: 0;right: 0;background-color: #666;width: 8px;height: 0;border-radius: 4px;'
                     );
                     f.appendChild(b);
                     p.appendChild(f);
@@ -207,7 +207,6 @@ define(function () {
 
                         if (scrollBarConf.mode === 1) {
                             scrollBarData.hideTimeout = window.setTimeout(function () {
-                                // this.parentNode.style.display = 'none';
                                 this.parentNode.style.opacity = '0';
                             }.bind(this), scrollBarConf.hideDelay);
                         }
@@ -257,8 +256,7 @@ define(function () {
                 return heightOf.foo - heightOf.bar;
             },
             _setT: function (el, t) {
-                el.style.transform = el.style.WebkitTransform = 'translate3d(0,' + t + 'px,0)';
-                // el.style.transform = el.style.WebkitTransform = 'translateY(' + t + 'px)';
+                el.style.transform = el.style.WebkitTransform = 'translate3d(0,' + t + 'px,0)'; // 'translateY(' + t + 'px)';
             },
             setTranslate: function (id, el, d, r) {
                 var t = d || 0;
@@ -280,7 +278,6 @@ define(function () {
                     })(el, t));
                 } else {
                     ScrollHelp._setT(el, t);
-                    // if (id === 'page') console.log('    setT: ' + t);
                 }
 
                 return tt;
@@ -327,25 +324,15 @@ define(function () {
             stopTranslate: function (el, opos, isScrollBar) {
                 var t;
                 if(pageScrolling) {
-                    if (isScrollBar) {
-                    // if (true) {
-                        t = window.getComputedStyle(el).getPropertyValue('transform'); // can it be computed?
-                        el.style.transform = el.style.WebkitTransform = t;
-                        if (t && t != 'none') {
-                            t = t.substring(t.lastIndexOf(', ') + 2, t.length - (t.endsWith('px)') ? 3 : 1));
-                        }
-                    } else {
-                        var dt = (startTime - endTime) / 1000;
-                        t = initialPosition + (initialSpeed * dt + (initialSpeed > 0 ? -1 : 1) * acceleration * dt * dt / 2);
-                        // console.log(initialPosition, initialSpeed, (initialSpeed > 0 ? -1 : 1) * acceleration, dt, t);
-                        el.style.transform = el.style.WebkitTransform = 'translate3d(0,' + t + 'px,0)';
-                    }
+                    var dt = (startTime - endTime) / 1000;
+                    t = initialPosition + (initialSpeed * dt + (initialSpeed > 0 ? -1 : 1) * acceleration * dt * dt / 2);
+                    if (isScrollBar) t /= heightOf.page / heightOf.foo;
+                    el.style.transform = el.style.WebkitTransform = 'translate3d(0,' + t + 'px,0)';
                 } else {
                     if(opos == null) {
                         t = el.style.transform;
-                        console.log(t);
-                        if(t == 'none') t = el.style.WebkitTransform;
-                        if (t != 'none') {
+                        if (!t || t === 'none') t = el.style.WebkitTransform;
+                        if (t && t !== 'none') {
                             t = t.substring(t.indexOf(', ') + 2, t.lastIndexOf(', '));
                         }
                     } else {
@@ -353,7 +340,7 @@ define(function () {
                     }
                 }
 
-                if (!t || t == 'none') {
+                if (!t || t === 'none') {
                     t = 0;
                 }
 
@@ -475,10 +462,6 @@ define(function () {
         // 初始化滚动条
         if (scrollBarConf.mode !== 0) ScrollHelp.getScrollBar();
 
-        // document.addEventListener('touchstart', function (e) {
-        //     console.log('<touchstart 0');
-        // });
-
         page.addEventListener('touchstart', function (e) {
             var touchobj = e.changedTouches[0];
             thenX = nowX = startX = touchobj.pageX;
@@ -486,8 +469,6 @@ define(function () {
             startTime = lastLastMoveTime = lastMoveTime = Date.now();
 
             startTop = scrollPosition = ScrollHelp.stopTranslate(this, scrollPosition);
-
-            // console.log('<touchstart: ' + startTop);
 
             ScrollHelp.updateHeights(); // Is this necessary?
 
@@ -549,8 +530,6 @@ define(function () {
                     (heightOf.page - heightOf.parent)), true);
             }
 
-            // console.log(' touchmove: ' + scrollPosition);
-
             e.preventDefault(); // prevent scrolling when inside DIV
         }, false);
 
@@ -602,7 +581,6 @@ define(function () {
                         true);
                     if (scrollBarConf.mode === 1) {
                         scrollBarData.hideTimeout = window.setTimeout(function () {
-                            // b.parentNode.style.display = 'none';
                             b.parentNode.style.opacity = '0';
                         }, transResult.time * 1000 + scrollBarConf.hideDelay);
                     }
@@ -622,8 +600,6 @@ define(function () {
                     startPosition: startTop,
                     transBoundary: transBoundary
                 });
-
-                // console.log('>scrollend: ' + curPosition);
             }
 
             e.preventDefault();
@@ -634,7 +610,6 @@ define(function () {
             elementEventQueues.add(el);
         };
         this.remove = function (el) {
-            // page.removeChild(el);
             el.style.display = 'none';
             elementEventQueues.remove(el);
         };
