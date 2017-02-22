@@ -1,8 +1,7 @@
 # todo
 
-- Is there any difference between two formats of css transform property: 'translate(0px, -77373px) translateZ(0px)' and 'translate3d(0px, -25282.1px, 0px)'?
+- Is there any difference among formats of css transform property: 'translate(0px, -1000px) translateZ(0px)', 'translateY(-1000px)' and 'translate3d(0px, -1000px, 0px)'?
 - If the list is longer, the maxSpeed should be higher, shouldn't it?
-- If there were any blocks in `Hide` plugin left without `rIndex` being considered?
 
 # contrast
 
