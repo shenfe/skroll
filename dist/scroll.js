@@ -1,4 +1,4 @@
-/* polyfill */
+/* Polyfill */
 if (typeof String.prototype.startsWith !== 'function') {
     String.prototype.startsWith = function (prefix) {
         return this.slice(0, prefix.length) === prefix;
@@ -10,6 +10,7 @@ if (typeof String.prototype.endsWith !== 'function') {
     };
 }
 
+/* Automatically hide both-ends items */
 var autoHiddenPlugin = (function () {
     var _list = null,
         _preBlank,
@@ -579,6 +580,7 @@ var autoHiddenPlugin = (function () {
     }
 })();
 
+/* Scroll class */
 var control = function (dom, conf) {
     if (!conf) conf = {};
     var page,
