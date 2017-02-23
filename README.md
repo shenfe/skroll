@@ -4,9 +4,11 @@
 
 # 使用方式
 
+在需要滚动的元素ready后，即可调用Scroll实现滚动。
+
 ```js
 // <div style="position:relative;overflow:hidden;">
-//     <div id="target" style="position:relative;left:0;"></div>
+//     <div id="target" style="position:relative;"></div>
 // </div>
 new Scroll(document.getElementById('target'), {
     acceleration: 2000,     // deceleration of the sliding target in fact
@@ -15,6 +17,10 @@ new Scroll(document.getElementById('target'), {
     scrollBarMode: 1        // 0: hidden; 1 (default): auto; 1: visible
 });
 ```
+
+# 兼容性
+
+适用于移动端。
 
 # Test
 
