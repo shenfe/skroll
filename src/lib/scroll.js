@@ -609,7 +609,7 @@ define(function () {
         var ResizeSensor = function () {
 
             // Make sure it does not throw in a SSR (Server Side Rendering) situation
-            if (typeof window === "undefined") {
+            if (typeof window === 'undefined') {
                 return null;
             }
             // Only used for the dirty checking, so the event callback count is limited to max 1 call per fps per sensor.
@@ -731,7 +731,7 @@ define(function () {
                         '</div>';
                     element.appendChild(element.resizeSensor);
 
-                    if (getComputedStyle(element, 'position') == 'static') {
+                    if (getComputedStyle(element, 'position') === 'static') {
                         element.style.position = 'relative';
                     }
 
@@ -803,7 +803,7 @@ define(function () {
 
             ResizeSensor.detach = function(element, ev) {
                 forEachElement(element, function(elem){
-                    if(elem.resizedAttached && typeof ev == "function"){
+                    if(elem.resizedAttached && typeof ev === 'function'){
                         elem.resizedAttached.remove(ev);
                         if(elem.resizedAttached.length()) return;
                     }
@@ -826,27 +826,27 @@ define(function () {
             if (!ifObserveChild || itemHeightFixed) return;
 
             /* MutationObserver way */
-            if ('MutationObserver' in window) {
-                var target = el;
-                var observer = new MutationObserver(function (mutations) {
-                    mutations.forEach(function (mutation) {
-                        console.log('mutation');
-                        // elementEventQueues.update(target);
-                    });
-                });
-
-                observer.observe(target, {
-                    attributes: true,
-                    childList: true,
-                    subtree: true,
-                    characterData: false
-                });
-            }
+            // if ('MutationObserver' in window) {
+            //     var target = el;
+            //     var observer = new MutationObserver(function (mutations) {
+            //         mutations.forEach(function (mutation) {
+            //             console.log('mutation');
+            //             // elementEventQueues.update(target);
+            //         });
+            //     });
+            //
+            //     observer.observe(target, {
+            //         attributes: true,
+            //         childList: true,
+            //         subtree: true,
+            //         characterData: false
+            //     });
+            // }
 
             /* ResizeSensor way */
-            // new ResizeSensor(el, function () {
-            //     elementEventQueues.update(el);
-            // });
+            new ResizeSensor(el, function () {
+                elementEventQueues.update(el);
+            });
         };
 
         /* initialize observers for children */
