@@ -23,10 +23,10 @@ define(function () {
             _itemHeight = 0,
             itemHeight = function() {
                 if(_itemHeight === 0) {
-                    var len = page.childNodes.length;
+                    var len = page.children.length;
                     if(filler === 2) len -= 2;
                     if(len <= 0) return 0;
-                    _itemHeight = page.childNodes[filler === 2 ? 1 : 0].offsetHeight;
+                    _itemHeight = page.children[filler === 2 ? 1 : 0].offsetHeight;
                 }
                 return _itemHeight;
             },
@@ -103,7 +103,7 @@ define(function () {
         };
         var _pageHeight = 0;
         var pageHeight = function () {
-            if(itemHeightFixed) return (filler === 2 ? (page.childNodes.length - 2) : page.childNodes.length) * itemHeight();
+            if(itemHeightFixed) return (filler === 2 ? (page.children.length - 2) : page.children.length) * itemHeight();
             return page.clientHeight;
         };
         window.addEventListener('resize', updatePageParentHeight, false);
@@ -214,7 +214,7 @@ define(function () {
                         e.preventDefault();
                     }, false);
                 } else {
-                    b = b[0].childNodes[0];
+                    b = b[0].children[0];
                 }
                 scrollBar = b;
                 return b;
@@ -327,7 +327,7 @@ define(function () {
                 if(pageScrolling) {
                     var dt = (startTime - endTime) / 1000;
                     t = initialPosition + (initialSpeed * dt + (initialSpeed > 0 ? -1 : 1) * acceleration * dt * dt / 2);
-                    if (isScrollBar) t /= heightOf.page / heightOf.foo;
+                    if (isScrollBar) t /= -heightOf.page / heightOf.foo;
                     el.style.transform = el.style.WebkitTransform = 'translate3d(0,' + t + 'px,0)';
                 } else {
                     if(opos == null) {
@@ -735,9 +735,9 @@ define(function () {
                         element.style.position = 'relative';
                     }
 
-                    var expand = element.resizeSensor.childNodes[0];
-                    var expandChild = expand.childNodes[0];
-                    var shrink = element.resizeSensor.childNodes[1];
+                    var expand = element.resizeSensor.children[0];
+                    var expandChild = expand.children[0];
+                    var shrink = element.resizeSensor.children[1];
                     var dirty, rafId, newWidth, newHeight;
                     var lastWidth = element.offsetWidth;
                     var lastHeight = element.offsetHeight;

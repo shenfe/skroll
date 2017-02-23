@@ -112,7 +112,7 @@ define(function () {
     window._cache = _cache;
 
     var childNodes = function() {
-        return _list.childNodes;
+        return _list.children;
     };
 
     var _requestAnimationFrame = window.requestAnimationFrame ||
@@ -162,7 +162,7 @@ define(function () {
     var init = function (list, conf) {
         // console.log(conf);
         _conf.itemHeightFixed = conf.itemHeightFixed || _conf.itemHeightFixed;
-        var children = list.childNodes;
+        var children = list.children;
         if (!children || !children.length) {
             return;
         }

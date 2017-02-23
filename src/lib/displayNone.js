@@ -126,8 +126,8 @@ define(function () {
         };
 
     var childNodes = function() {
-        if(_conf.usePaddingOrBlank === 0) return _list.childNodes;
-        var r = _list.childNodes;
+        if(_conf.usePaddingOrBlank === 0) return _list.children;
+        var r = _list.children;
         return Array.prototype.slice.call(r, 1, r.length - 1);
     };
 
@@ -158,7 +158,7 @@ define(function () {
             var blankStyle = 'width:0;height:0;padding:0;border:0;margin:0;';
             _preBlank = document.createElement('div');
             _preBlank.setAttribute('style', blankStyle);
-            _list.insertBefore(_preBlank, _list.childNodes[0]);
+            _list.insertBefore(_preBlank, _list.children[0]);
             _subBlank = document.createElement('div');
             _subBlank.setAttribute('style', blankStyle);
             _list.appendChild(_subBlank);
@@ -194,7 +194,7 @@ define(function () {
     var init = function (list, conf) {
         _conf.itemHeightFixed = conf.itemHeightFixed || _conf.itemHeightFixed;
         _conf.usePaddingOrBlank = (conf.filler === 2 ? 1 : 0);
-        var children = list.childNodes;
+        var children = list.children;
         if (!children || !children.length) {
             return;
         }
