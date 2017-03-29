@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/shenfe/Scroll.js"
+    "url": "https://github.com/focus-fe/lib-scroll"
   },
   "keywords": [
     "scroll"
@@ -19,7 +19,7 @@
   "author": "keshen",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/shenfe/Scroll.js/issues"
+    "url": "https://github.com/focus-fe/lib-scroll/issues"
   },
-  "homepage": "https://github.com/shenfe/Scroll.js"
+  "homepage": "https://github.com/focus-fe/lib-scroll"
 }
