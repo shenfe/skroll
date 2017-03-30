@@ -1,4 +1,4 @@
-# Scroll.js
+# lib-scroll
 
 手动实现适用于移动端的滚动。
 
@@ -22,7 +22,7 @@ new Scroll(document.getElementById('target'), {
 
 适用于移动端。
 
-# Test
+# 测试
 
 ## 自动隐藏与否对比
 
