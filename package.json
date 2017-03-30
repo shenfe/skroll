@@ -1,6 +1,6 @@
 {
   "name": "lib-scroll",
-  "version": "1.0.0",
+  "version": "1.4.0",
   "description": "Make a list-like element scroll instead of the native way.scrolling behavior of Web browser.",
   "main": "./dist/scroll.js",
   "directories": {
