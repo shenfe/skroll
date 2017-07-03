@@ -1,4 +1,4 @@
-## lib-scroll
+## Scroll.js
 
 手动实现适用于移动端的滚动。
 
