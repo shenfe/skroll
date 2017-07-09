@@ -26,16 +26,16 @@ new Scroll(document.getElementById('target'), {
 
 ### 自动隐藏与否对比
 
-| 方式 | 查看链接 |
+| 方式 | 测试链接 |
 | :---: | :---: |
-| 自动隐藏 | [scroll.js.html?size=1000&content=1](http://hengwu.me/repos/Scroll.js/scroll.js.html?size=1000&content=1) |
-| 不隐藏 | [scroll.js.html?size=1000&content=1&hide=false](http://hengwu.me/repos/Scroll.js/scroll.js.html?size=1000&content=1&hide=false) |
+| 自动隐藏 | [scroll.js.html?size=1000&content=1](http://shenfe.github.io/repos/Scroll.js/scroll.js.html?size=1000&content=1) |
+| 不隐藏 | [scroll.js.html?size=1000&content=1&hide=false](http://shenfe.github.io/repos/Scroll.js/scroll.js.html?size=1000&content=1&hide=false) |
 
 ### 不同滚动对比
 
-| 方式 | 查看链接 |
+| 方式 | 测试链接 |
 | :---: | :---: |
-| 高度固定自动隐藏模拟滚动 | [scroll.js.html?size=10000&content=0&height=true](http://hengwu.me/repos/Scroll.js/scroll.js.html?size=10000&content=0&height=true) |
-| 高度固定不隐藏模拟滚动 | [scroll.js.html?size=10000&content=0&height=true&hide=false](http://hengwu.me/repos/Scroll.js/scroll.js.html?size=10000&content=0&height=true&hide=false) |
-| iscroll | [scroll.js.iscroll.html?size=10000&content=0&method=iscroll](http://hengwu.me/repos/Scroll.js/scroll.js.iscroll.html?size=10000&content=0&method=iscroll) |
-| 原生 | [scroll.js.native.html?size=10000&content=0&method=native](http://hengwu.me/repos/Scroll.js/scroll.js.native.html?size=10000&content=0&method=native) |
+| 高度固定自动隐藏模拟滚动 | [scroll.js.html?size=10000&content=0&height=true](http://shenfe.github.io/repos/Scroll.js/scroll.js.html?size=10000&content=0&height=true) |
+| 高度固定不隐藏模拟滚动 | [scroll.js.html?size=10000&content=0&height=true&hide=false](http://shenfe.github.io/repos/Scroll.js/scroll.js.html?size=10000&content=0&height=true&hide=false) |
+| iscroll | [scroll.js.iscroll.html?size=10000&content=0&method=iscroll](http://shenfe.github.io/repos/Scroll.js/scroll.js.iscroll.html?size=10000&content=0&method=iscroll) |
+| 原生 | [scroll.js.native.html?size=10000&content=0&method=native](http://shenfe.github.io/repos/Scroll.js/scroll.js.native.html?size=10000&content=0&method=native) |
