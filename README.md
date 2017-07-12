@@ -39,3 +39,9 @@ new Scroll(document.getElementById('target'), {
 | 高度固定不隐藏模拟滚动 | [scroll.js.html?size=10000&content=0&height=true&hide=false](http://shenfe.github.io/repos/Scroll.js/scroll.js.html?size=10000&content=0&height=true&hide=false) |
 | iscroll | [scroll.js.iscroll.html?size=10000&content=0&method=iscroll](http://shenfe.github.io/repos/Scroll.js/scroll.js.iscroll.html?size=10000&content=0&method=iscroll) |
 | 原生 | [scroll.js.native.html?size=10000&content=0&method=native](http://shenfe.github.io/repos/Scroll.js/scroll.js.native.html?size=10000&content=0&method=native) |
+
+## License
+
+[MIT](http://opensource.org/licenses/MIT)
+
+Copyright (c) 2016-present, [shenfe](https://github.com/shenfe)
