@@ -2,6 +2,10 @@
 
 手动实现适用于移动端的滚动。
 
+## Demo
+
+[Demo](http://shenfe.github.io/repos/Scroll.js/scroll.js.html?size=10000&content=0&height=true)
+
 ## 使用方式
 
 在需要滚动的元素ready后，即可调用Scroll实现滚动。
