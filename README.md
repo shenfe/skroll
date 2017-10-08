@@ -8,13 +8,13 @@
 
 ## 使用方式
 
-在需要滚动的元素ready后，即可调用Scroll实现滚动。
+在需要滚动的元素ready后，即可调用Skroll实现滚动。
 
 ```js
 // <div style="position:relative;overflow:hidden;">
 //     <div id="target" style="position:relative;"></div>
 // </div>
-new Scroll(document.getElementById('target'), {
+new Skroll(document.getElementById('target'), {
     acceleration: 2000,     // deceleration of the sliding target in fact
     maxSpeed: 4000,         // maximum speed of the target
     itemHeightFixed: false, // false (default): no matter what children are like; true: optimized if the target's each child is of a fixed height

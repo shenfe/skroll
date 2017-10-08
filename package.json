@@ -1,11 +1,8 @@
 {
   "name": "skroll",
-  "version": "1.4.0",
-  "description": "Make a list-like element scroll instead of the native way.scrolling behavior of Web browser.",
-  "main": "./dist/scroll.js",
-  "directories": {
-    "test": "test"
-  },
+  "version": "1.4.1",
+  "description": "Scrolling, for mobile Web.",
+  "main": "./src/index.js",
   "scripts": {
     "build:min": "rollup -c ./build/rollup-min.config.js",
     "build": "rollup -c ./build/rollup.config.js",
@@ -14,20 +11,24 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/shenfe/Scroll.js"
+    "url": "git+https://github.com/shenfe/skroll.git"
   },
   "keywords": [
     "scroll"
   ],
-  "author": "keshen",
+  "author": "hengwu",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/shenfe/Scroll.js/issues"
+    "url": "https://github.com/shenfe/skroll/issues"
   },
-  "homepage": "https://github.com/shenfe/Scroll.js",
+  "homepage": "https://github.com/shenfe/skroll",
   "devDependencies": {
     "rollup": "^0.50.0",
     "rollup-plugin-uglify": "^2.0.1",
     "source-map-support": "^0.5.0"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {}
 }
