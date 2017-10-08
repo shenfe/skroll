@@ -6,7 +6,7 @@
 
 [Demo](http://shenfe.github.io/repos/skroll/test/test.html)
 
-## 使用方式
+## Usage
 
 在需要滚动的元素ready后，即可调用Skroll实现滚动。
 
@@ -22,11 +22,11 @@ new Skroll(document.getElementById('target'), {
 });
 ```
 
-## 兼容性
+## Compatibility
 
 适用于移动端。
 
-## 测试
+## Testing
 
 ### 自动隐藏与否对比
 
