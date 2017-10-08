@@ -1,5 +1,5 @@
 {
-  "name": "lib-scroll",
+  "name": "skroll",
   "version": "1.4.0",
   "description": "Make a list-like element scroll instead of the native way.scrolling behavior of Web browser.",
   "main": "./dist/scroll.js",
@@ -7,19 +7,27 @@
     "test": "test"
   },
   "scripts": {
+    "build:min": "rollup -c ./build/rollup-min.config.js",
+    "build": "rollup -c ./build/rollup.config.js",
+    "dev": "rollup -w -c ./build/rollup.config.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/focus-fe/lib-scroll"
+    "url": "https://github.com/shenfe/Scroll.js"
   },
   "keywords": [
     "scroll"
   ],
   "author": "keshen",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/focus-fe/lib-scroll/issues"
+    "url": "https://github.com/shenfe/Scroll.js/issues"
   },
-  "homepage": "https://github.com/focus-fe/lib-scroll"
+  "homepage": "https://github.com/shenfe/Scroll.js",
+  "devDependencies": {
+    "rollup": "^0.50.0",
+    "rollup-plugin-uglify": "^2.0.1",
+    "source-map-support": "^0.5.0"
+  }
 }
