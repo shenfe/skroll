@@ -1,4 +1,9 @@
-# skroll
+<h1 align="center">skroll</h1>
+
+![gzip size](http://img.badgesize.io/https://raw.githubusercontent.com/shenfe/skroll/master/dist/Skroll.min.js?compression=gzip)
+<a href="https://www.npmjs.com/package/skroll"><img src="https://img.shields.io/npm/v/skroll.svg"></a>
+![downloads](https://img.shields.io/npm/dm/skroll.svg)
+![license](https://img.shields.io/npm/l/skroll.svg)
 
 手动实现适用于移动端的滚动。
 
