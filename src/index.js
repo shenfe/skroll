@@ -437,7 +437,7 @@ var Skroll = function (dom, conf) {
     acceleration = conf.acceleration || acceleration;
     maxSpeed = conf.maxSpeed || maxSpeed;
     scrollBarConf.mode = conf.scrollBarMode || scrollBarConf.mode;
-    ifRequestAnimationFrame = !!conf.raf;
+    ifRequestAnimationFrame = conf.raf !== false;
 
     ScrollHelp.updateHeights();
 
