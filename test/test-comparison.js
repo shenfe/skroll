@@ -43,7 +43,8 @@ requirejs(['test_content'], function (TestContent) {
             maxSpeed: 4000,
             itemHeightFixed: !!test_heightFixed,
             filler: 1, // 1: padding, 2: blank
-            raf: !!test_requestAnimationFrame,
+            // raf: !!test_requestAnimationFrame,
+            raf: true,
             scrollBarMode: 1,
             autoHide: test_hide,
             plugins: []

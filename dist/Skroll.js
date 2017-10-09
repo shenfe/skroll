@@ -16,6 +16,17 @@ if (!String.prototype.endsWith) {
     };
 }
 
+/**
+ * throttle节流函数
+ * @refer https://stackoverflow.com/a/27078401
+ */
+var raf = window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    window.msRequestAnimationFrame ||
+    window.oRequestAnimationFrame ||
+    function (callback) { window.setTimeout(callback, 0); };
+
 // Only used for the dirty checking, so the event callback count is limited to max 1 call per fps per sensor.
 // In combination with the event based resize sensor this saves cpu time, because the sensor is too fast and
 // would generate too many unnecessary events.
@@ -50,7 +61,7 @@ var _conf = {
     },
     liveRatio: 1,
     displayNeeded: false,
-    ifRequestAnimationFrame: false,
+    ifRequestAnimationFrame: true,
     screenMaxHeight: window.screen.height,
     usePaddingOrBlank: 1 // 0: padding, 1: blank
 };
@@ -422,7 +433,15 @@ var show = function (begin, end, len, children, ifCheck, forceUpdate) { // go do
         if (_cache.rIndex[j] === true) continue;
         if (_cache.vIndex[j]) continue;
         _cache.vIndex[j] = true;
-        children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
+        if (!_conf.ifRequestAnimationFrame) {
+            children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
+        } else {
+            raf((function (j) {
+                return function () {
+                    children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
+                };
+            })(j));
+        }
         _cache.subHeight -= _cache.hIndexOf(j, children);
     }
 
@@ -436,7 +455,15 @@ var show = function (begin, end, len, children, ifCheck, forceUpdate) { // go do
                 break;
             }
             var hj = _cache.hIndexOf(j, children);
-            children[j].style.display = 'none';
+            if (!_conf.ifRequestAnimationFrame) {
+                children[j].style.display = 'none';
+            } else {
+                raf((function (j) {
+                    return function () {
+                        children[j].style.display = 'none';
+                    };
+                })(j));
+            }
             _cache.vIndex[j] = false;
             _cache.subHeight += hj;
         }
@@ -455,7 +482,15 @@ var rshow = function (begin, end, len, children, ifCheck, forceUpdate) { // go u
         if (_cache.rIndex[j] === true) continue;
         if (_cache.vIndex[j]) continue;
         _cache.vIndex[j] = true;
-        children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
+        if (!_conf.ifRequestAnimationFrame) {
+            children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
+        } else {
+            raf((function (j) {
+                return function () {
+                    children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
+                };
+            })(j));
+        }
         _cache.preHeight -= _cache.hIndexOf(j, children);
     }
 
@@ -469,7 +504,15 @@ var rshow = function (begin, end, len, children, ifCheck, forceUpdate) { // go u
                 break;
             }
             var hj = _cache.hIndexOf(j, children);
-            children[j].style.display = 'none';
+            if (!_conf.ifRequestAnimationFrame) {
+                children[j].style.display = 'none';
+            } else {
+                raf((function (j) {
+                    return function () {
+                        children[j].style.display = 'none';
+                    };
+                })(j));
+            }
             _cache.vIndex[j] = false;
             _cache.preHeight += hj;
         }
@@ -605,14 +648,7 @@ var Skroll = function (dom, conf) {
             mode: 1 // 0: hidden, 1: autoShow, 2: alwaysShow
         },
         ifRequestAnimationFrame,
-        requestAnimationFrame = window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.msRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            function (callback) {
-                window.setTimeout(callback, 1000 / 60);
-            },
+        requestAnimationFrame = raf,
         scrollBarData = {
             hideTimeout: null,
             thenX: null,
@@ -712,6 +748,7 @@ var Skroll = function (dom, conf) {
 
                     e.preventDefault();
                 }, false);
+
                 b.addEventListener('touchmove', function (e) {
                     if (!scrollBarConf.draggable) return;
 
@@ -739,6 +776,7 @@ var Skroll = function (dom, conf) {
 
                     e.preventDefault(); // prevent scrolling when inside DIV
                 }, false);
+
                 b.addEventListener('touchend', function (e) {
                     if (!scrollBarConf.draggable) return;
 

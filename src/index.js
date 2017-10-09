@@ -1,4 +1,5 @@
 import './Polyfill'
+import * as Util from './Util'
 import ResizeSensor from './ResizeSensor'
 import HidingPlugin from './Hide'
 
@@ -57,14 +58,7 @@ var Skroll = function (dom, conf) {
             mode: 1 // 0: hidden, 1: autoShow, 2: alwaysShow
         },
         ifRequestAnimationFrame,
-        requestAnimationFrame = window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.msRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            function (callback) {
-                window.setTimeout(callback, 1000 / 60)
-            },
+        requestAnimationFrame = Util.raf,
         scrollBarData = {
             hideTimeout: null,
             thenX: null,
@@ -165,6 +159,7 @@ var Skroll = function (dom, conf) {
 
                     e.preventDefault();
                 }, false);
+
                 b.addEventListener('touchmove', function (e) {
                     if (!scrollBarConf.draggable) return;
 
@@ -192,6 +187,7 @@ var Skroll = function (dom, conf) {
 
                     e.preventDefault(); // prevent scrolling when inside DIV
                 }, false);
+
                 b.addEventListener('touchend', function (e) {
                     if (!scrollBarConf.draggable) return;
 

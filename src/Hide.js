@@ -1,3 +1,5 @@
+import * as Util from './Util'
+
 var _list = null;
 
 var _preBlank;
@@ -28,7 +30,7 @@ var _conf = {
     },
     liveRatio: 1,
     displayNeeded: false,
-    ifRequestAnimationFrame: false,
+    ifRequestAnimationFrame: true,
     screenMaxHeight: window.screen.height,
     usePaddingOrBlank: 1 // 0: padding, 1: blank
 };
@@ -132,13 +134,6 @@ var childNodes = function () {
     var r = _list.children;
     return Array.prototype.slice.call(r, 1, r.length - 1);
 };
-
-var _requestAnimationFrame = window.requestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame ||
-    window.msRequestAnimationFrame ||
-    window.oRequestAnimationFrame ||
-    function (callback) { window.setTimeout(callback, 1000 / 60) };
 
 var _getStyle = function (oElm, strCssRule) {
     var strValue = '';
@@ -440,7 +435,15 @@ var show = function (begin, end, len, children, ifCheck, forceUpdate) { // go do
         if (_cache.rIndex[j] === true) continue;
         if (_cache.vIndex[j]) continue;
         _cache.vIndex[j] = true;
-        children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
+        if (!_conf.ifRequestAnimationFrame) {
+            children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
+        } else {
+            Util.raf((function (j) {
+                return function () {
+                    children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
+                };
+            })(j));
+        }
         _cache.subHeight -= _cache.hIndexOf(j, children);
     }
 
@@ -454,7 +457,15 @@ var show = function (begin, end, len, children, ifCheck, forceUpdate) { // go do
                 break;
             }
             var hj = _cache.hIndexOf(j, children);
-            children[j].style.display = 'none';
+            if (!_conf.ifRequestAnimationFrame) {
+                children[j].style.display = 'none';
+            } else {
+                Util.raf((function (j) {
+                    return function () {
+                        children[j].style.display = 'none';
+                    };
+                })(j));
+            }
             _cache.vIndex[j] = false;
             _cache.subHeight += hj;
         }
@@ -473,7 +484,15 @@ var rshow = function (begin, end, len, children, ifCheck, forceUpdate) { // go u
         if (_cache.rIndex[j] === true) continue;
         if (_cache.vIndex[j]) continue;
         _cache.vIndex[j] = true;
-        children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
+        if (!_conf.ifRequestAnimationFrame) {
+            children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
+        } else {
+            Util.raf((function (j) {
+                return function () {
+                    children[j].style.display = displayNeeded ? _cache.dIndex[j] : 'block';
+                };
+            })(j));
+        }
         _cache.preHeight -= _cache.hIndexOf(j, children);
     }
 
@@ -487,7 +506,15 @@ var rshow = function (begin, end, len, children, ifCheck, forceUpdate) { // go u
                 break;
             }
             var hj = _cache.hIndexOf(j, children);
-            children[j].style.display = 'none';
+            if (!_conf.ifRequestAnimationFrame) {
+                children[j].style.display = 'none';
+            } else {
+                Util.raf((function (j) {
+                    return function () {
+                        children[j].style.display = 'none';
+                    };
+                })(j));
+            }
             _cache.vIndex[j] = false;
             _cache.preHeight += hj;
         }
