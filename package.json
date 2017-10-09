@@ -1,8 +1,8 @@
 {
   "name": "skroll",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Scrolling, for mobile Web.",
-  "main": "./src/index.js",
+  "main": "./dist/Skroll.js",
   "scripts": {
     "build:min": "rollup -c ./build/rollup-min.config.js",
     "build": "rollup -c ./build/rollup.config.js",
