@@ -53,4 +53,4 @@ new Skroll(document.getElementById('target'), {
 
 [MIT](http://opensource.org/licenses/MIT)
 
-Copyright (c) 2016-present, [shenfe](https://github.com/shenfe)
+Copyright © 2016-present, [shenfe](https://github.com/shenfe)
