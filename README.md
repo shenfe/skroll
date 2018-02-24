@@ -31,7 +31,7 @@ new Skroll(document.getElementById('target'), {
 
 适用于移动端。
 
-## Testing
+## Test
 
 ### 自动隐藏与否对比
 
