@@ -40,20 +40,20 @@ new Skroll(document.getElementById('target'), {
 
 ## Test
 
-### 自动隐藏与否对比
+**自动隐藏与否对比**
 
 | 方式 | 测试链接 |
 | :---: | :---: |
 | 自动隐藏 | [test-skroll.html?size=1000&content=1](http://shenfe.github.io/repos/skroll/test/test-skroll.html?size=1000&content=1) |
 | 不隐藏 | [test-skroll.html?size=1000&content=1&hide=false](http://shenfe.github.io/repos/skroll/test/test-skroll.html?size=1000&content=1&hide=false) |
 
-### 不同滚动对比
+**不同滚动对比**
 
 | 方式 | 测试链接 |
 | :---: | :---: |
 | 高度固定自动隐藏模拟滚动 | [test-skroll.html?size=10000&content=0&height=true](http://shenfe.github.io/repos/skroll/test/test-skroll.html?size=10000&content=0&height=true) |
 | 高度固定不隐藏模拟滚动 | [test-skroll.html?size=10000&content=0&height=true&hide=false](http://shenfe.github.io/repos/skroll/test/test-skroll.html?size=10000&content=0&height=true&hide=false) |
-| iscroll | [test-iscroll.html?size=10000&content=0&method=iscroll](http://shenfe.github.io/repos/skroll/test/test-iscroll.html?size=10000&content=0&method=iscroll) |
+| [iscroll](https://github.com/cubiq/iscroll/tree/v5.2.0) | [test-iscroll.html?size=10000&content=0&method=iscroll](http://shenfe.github.io/repos/skroll/test/test-iscroll.html?size=10000&content=0&method=iscroll) |
 | 原生 | [test-native.html?size=10000&content=0&method=native](http://shenfe.github.io/repos/skroll/test/test-native.html?size=10000&content=0&method=native) |
 
 ## License
