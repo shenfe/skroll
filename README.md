@@ -11,6 +11,12 @@
 
 [Demo](http://shenfe.github.io/repos/skroll/test/test.html)
 
+## Installation
+
+```bash
+$ npm install --save skroll
+```
+
 ## Usage
 
 在需要滚动的元素ready后，即可调用Skroll实现滚动。
@@ -19,6 +25,7 @@
 // <div style="position:relative;overflow:hidden;">
 //     <div id="target" style="position:relative;"></div>
 // </div>
+const Skroll = require('skroll');
 new Skroll(document.getElementById('target'), {
     acceleration: 2000,     // deceleration of the sliding target in fact
     maxSpeed: 4000,         // maximum speed of the target
